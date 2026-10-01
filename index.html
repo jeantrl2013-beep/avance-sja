@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avance de obra · Nuevo San Juan Alto</title>
+<meta name="description" content="Avance físico de las 165 unidades básicas de saneamiento de Nuevo San Juan Alto, Hualgayoc, actualizado desde los registros diarios de campo.">
+<meta property="og:title" content="Avance de obra · Nuevo San Juan Alto">
+<meta property="og:description" content="Avance físico de las 165 UBS, con mapa y fotos de obra, actualizado desde campo.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root {
+    --fondo:#f2f1ed; --sup:#ffffff; --sup2:#f7f6f2; --tinta:#1b1c1e; --suave:#62656a;
+    --tenue:#94968f; --linea:#e0ddd5; --linea2:#ebe9e3;
+    --acento:#1f3864; --acento-sua:#e5ebf5;
+    --sin:#a9a79f; --curso:#c47d0c; --curso-sua:#f7ead3;
+    --ok:#2c7a4b; --ok-sua:#e1efe6; --alerta:#b23e2a; --alerta-sua:#f7e3de;
+    --azul:#2c62ad; --gps:#2c62ad;
+    --radio:10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fondo:#101214; --sup:#181b1e; --sup2:#1e2225; --tinta:#e8e6e1; --suave:#a3a6a9;
+      --tenue:#6f7276; --linea:#2b2f33; --linea2:#24282b;
+      --acento:#9cb7e7; --acento-sua:#1b2537;
+      --sin:#6a6d70; --curso:#e3a23a; --curso-sua:#33280f;
+      --ok:#5bbf84; --ok-sua:#13281c; --alerta:#ec8774; --alerta-sua:#34170f;
+      --azul:#7ea8e8; --gps:#8fb4f0;
+    }
+  }
+
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body {
+    margin:0; background:var(--fondo); color:var(--tinta);
+    font:15px/1.45 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  button { font:inherit; color:inherit; }
+  :focus-visible { outline:2px solid var(--acento); outline-offset:2px; }
+  .mono { font-family:"IBM Plex Mono", ui-monospace, Consolas, monospace; }
+  .num { font-variant-numeric:tabular-nums; }
+
+  /* ---------- cabecera ---------- */
+  .barra {
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    gap:10px 20px; padding:14px 16px 12px;
+  }
+  .obra { margin:0; font-size:.72rem; letter-spacing:.11em; text-transform:uppercase;
+          color:var(--suave); font-weight:500; }
+  h1 { margin:2px 0 0; font-size:1.3rem; font-weight:600; letter-spacing:-.01em; }
+  .sync { display:flex; align-items:center; gap:10px; }
+  .sync-estado { display:inline-flex; align-items:center; gap:7px; font-size:.84rem; color:var(--suave); }
+  .sync-estado i { width:8px; height:8px; border-radius:50%; background:var(--tenue); flex:none; }
+  .sync-estado.ok i { background:var(--ok); }
+  .sync-estado.cargando i { background:var(--curso); animation:latido 1s ease-in-out infinite; }
+  .sync-estado.error { color:var(--alerta); }
+  .sync-estado.error i { background:var(--alerta); }
+  @keyframes latido { 50% { opacity:.25; } }
+  .boton {
+    border:1px solid var(--linea); background:var(--sup); border-radius:8px;
+    padding:6px 12px; cursor:pointer; font-size:.86rem; font-weight:500;
+  }
+  .boton:hover { border-color:var(--acento); color:var(--acento); }
+  .boton:disabled { opacity:.5; cursor:default; }
+
+  /* ---------- indicadores ---------- */
+  .kpis {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+    gap:10px; padding:0 16px 12px;
+  }
+  .kpi { background:var(--sup); border:1px solid var(--linea); border-radius:var(--radio); padding:11px 14px 12px; }
+  .kpi .et { font-size:.74rem; color:var(--suave); letter-spacing:.02em; }
+  .kpi .val { font-size:1.65rem; font-weight:600; letter-spacing:-.02em; line-height:1.15; margin-top:3px; }
+  .kpi .val small { font-size:.95rem; font-weight:500; color:var(--suave); letter-spacing:0; }
+  .kpi .sub { font-size:.78rem; color:var(--suave); margin-top:2px; }
+  .kpi .barrita { height:4px; background:var(--linea2); border-radius:2px; margin-top:8px; overflow:hidden; }
+  .kpi .barrita i { display:block; height:100%; background:var(--acento); border-radius:2px; }
+  .kpi.alerta .val { color:var(--alerta); }
+
+  /* ---------- tablero ---------- */
+  .tablero {
+    display:grid; grid-template-columns:300px minmax(0, 1fr) 410px;
+    gap:12px; padding:0 16px 16px;
+  }
+  .caja { background:var(--sup); border:1px solid var(--linea); border-radius:var(--radio);
+          display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  @media (min-width:1181px) {
+    body { height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+    .tablero { flex:1; min-height:0; }
+  }
+  @media (max-width:1180px) {
+    .tablero { grid-template-columns:minmax(0, 1fr) 380px; }
+    .lista { grid-column:1 / -1; order:3; max-height:560px; }
+    .mapa-caja, .panel { height:66vh; min-height:480px; }
+  }
+  @media (max-width:760px) {
+    .tablero { display:flex; flex-direction:column; }
+    .mapa-caja { height:56vh; min-height:360px; order:1; }
+    .panel { height:auto; max-height:none; order:2; }
+    .lista { order:3; max-height:70vh; }
+    h1 { font-size:1.1rem; }
+    .kpi .val { font-size:1.35rem; }
+  }
+
+  /* ---------- lista ---------- */
+  .lista-cab { padding:12px 12px 10px; border-bottom:1px solid var(--linea); display:grid; gap:8px; }
+  .buscar {
+    width:100%; border:1px solid var(--linea); background:var(--sup2); border-radius:8px;
+    padding:7px 10px; font:inherit; font-size:.9rem; color:var(--tinta);
+  }
+  .chips { display:flex; flex-wrap:wrap; gap:5px; }
+  .chip {
+    border:1px solid var(--linea); background:transparent; border-radius:999px;
+    padding:3px 10px; font-size:.78rem; cursor:pointer; color:var(--suave);
+  }
+  .chip[aria-pressed="true"] { background:var(--tinta); color:var(--sup); border-color:var(--tinta); }
+  .selects { display:flex; gap:6px; }
+  .selects select {
+    flex:1; min-width:0; border:1px solid var(--linea); background:var(--sup2); border-radius:8px;
+    padding:5px 8px; font:inherit; font-size:.8rem; color:var(--tinta);
+  }
+  .cuenta { font-size:.75rem; color:var(--tenue); }
+  #lista-ubs { list-style:none; margin:0; padding:4px 0; overflow:auto; flex:1; }
+  .fila {
+    width:100%; display:grid; grid-template-columns:10px 64px minmax(0,1fr) 44px;
+    grid-template-rows:auto auto; column-gap:8px; row-gap:3px; align-items:center;
+    text-align:left; border:0; background:transparent; padding:7px 12px; cursor:pointer;
+    border-left:3px solid transparent;
+  }
+  .fila:hover { background:var(--sup2); }
+  .fila[aria-current="true"] { background:var(--acento-sua); border-left-color:var(--acento); }
+  .fila .punto { width:9px; height:9px; border-radius:50%; grid-row:1 / span 2; }
+  .fila .cod { font-size:.82rem; font-weight:500; }
+  .fila .ben { font-size:.82rem; color:var(--suave); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .fila .pct { font-size:.8rem; text-align:right; }
+  .fila .mini { grid-column:2 / 4; height:3px; background:var(--linea2); border-radius:2px; overflow:hidden; }
+  .fila .mini i { display:block; height:100%; background:var(--curso); }
+  .fila .cuando { font-size:.7rem; color:var(--tenue); text-align:right; }
+
+  /* ---------- mapa ---------- */
+  .mapa-caja { position:relative; }
+  #mapa { flex:1; min-height:0; background:var(--sup2); }
+  .mapa-ctrl {
+    position:absolute; top:10px; right:10px; z-index:500; display:flex; flex-direction:column;
+    gap:6px; align-items:flex-end;
+  }
+  .seg {
+    display:inline-flex; background:var(--sup); border:1px solid var(--linea); border-radius:8px;
+    overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.12);
+  }
+  .seg button { border:0; background:transparent; padding:5px 10px; font-size:.78rem; cursor:pointer; color:var(--suave); }
+  .seg button[aria-pressed="true"] { background:var(--tinta); color:var(--sup); }
+  .leyenda {
+    position:absolute; left:10px; bottom:22px; z-index:500; background:var(--sup);
+    border:1px solid var(--linea); border-radius:8px; padding:7px 10px; font-size:.76rem;
+    display:grid; gap:3px; box-shadow:0 1px 3px rgba(0,0,0,.12);
+  }
+  .leyenda span { display:flex; align-items:center; gap:7px; }
+  .leyenda i { width:10px; height:10px; border-radius:50%; border:1.5px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.25); }
+  .leaflet-container { font:inherit; }
+  .leaflet-tooltip { font-size:.78rem; }
+
+  /* ---------- panel ---------- */
+  .pestanas { display:flex; border-bottom:1px solid var(--linea); padding:0 6px; flex:none; }
+  .pestana {
+    border:0; background:transparent; padding:11px 10px 9px; cursor:pointer; font-size:.86rem;
+    color:var(--suave); border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .pestana[aria-selected="true"] { color:var(--tinta); border-bottom-color:var(--tinta); font-weight:500; }
+  .pestana .contador {
+    display:inline-block; min-width:18px; padding:0 5px; margin-left:3px; border-radius:9px;
+    background:var(--alerta-sua); color:var(--alerta); font-size:.72rem; text-align:center;
+  }
+  .contenido { overflow:auto; flex:1; padding:14px 16px 18px; }
+  .vacio { color:var(--suave); font-size:.88rem; margin:0; }
+  h2 { font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--suave);
+       font-weight:600; margin:20px 0 9px; }
+  h2:first-child { margin-top:0; }
+
+  .ubs-cab { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+  .ubs-cod { font-size:1.35rem; font-weight:500; letter-spacing:-.01em; }
+  .ubs-ben { font-size:.95rem; margin-top:1px; }
+  .ubs-meta { font-size:.8rem; color:var(--suave); margin-top:5px; }
+  .etiqueta { display:inline-block; font-size:.74rem; padding:2px 9px; border-radius:999px; white-space:nowrap; font-weight:500; }
+  .etiqueta.sin { background:var(--linea2); color:var(--suave); }
+  .etiqueta.curso { background:var(--curso-sua); color:var(--curso); }
+  .etiqueta.concluida { background:var(--ok-sua); color:var(--ok); }
+
+  .esp { margin-top:14px; }
+  .esp-cab { display:flex; justify-content:space-between; gap:8px; font-size:.84rem; margin-bottom:6px; }
+  .esp-cab b { font-weight:500; }
+  .esc { display:flex; gap:2px; }
+  .esc span { flex:1; height:16px; border-radius:2px; background:var(--linea2); }
+  .esc span.hecha { background:var(--ok); }
+  .esc span.curso { background:linear-gradient(to right, var(--curso) calc(var(--f) * 100%), var(--curso-sua) 0); }
+  .esp-pie { font-size:.78rem; color:var(--suave); margin-top:5px; }
+
+  .foto { margin-top:4px; border-radius:8px; overflow:hidden; background:var(--sup2);
+          border:1px solid var(--linea); min-height:60px; }
+  .foto img { display:block; width:100%; height:auto; max-height:340px; object-fit:cover; }
+  .foto .estado-foto { padding:18px 14px; font-size:.84rem; color:var(--suave); }
+  .foto-pie { font-size:.76rem; color:var(--suave); padding:6px 10px 8px; display:flex; justify-content:space-between; gap:8px; }
+  .foto-pie a { color:var(--acento); }
+
+  .hist { list-style:none; margin:0; padding:0; }
+  .hist li { position:relative; padding:0 0 13px 18px; border-left:1px solid var(--linea); margin-left:5px; }
+  .hist li:last-child { border-left-color:transparent; padding-bottom:0; }
+  .hist li::before { content:""; position:absolute; left:-5px; top:4px; width:9px; height:9px;
+                     border-radius:50%; background:var(--sup); border:2px solid var(--curso); }
+  .hist li.term::before { border-color:var(--ok); background:var(--ok); }
+  .hist .h1 { font-size:.82rem; color:var(--suave); display:flex; flex-wrap:wrap; gap:4px 10px; }
+  .hist .h2 { font-size:.88rem; margin-top:1px; }
+  .hist .h3 { font-size:.78rem; color:var(--suave); margin-top:3px; display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; }
+  .hist .obs { font-size:.84rem; margin-top:4px; padding:5px 9px; background:var(--sup2); border-radius:6px; border-left:2px solid var(--linea); }
+  .marca-gps { color:var(--alerta); }
+  .visto { color:var(--ok); }
+  .link { border:0; background:none; padding:0; color:var(--acento); cursor:pointer; font-size:.78rem; text-decoration:underline; text-underline-offset:2px; }
+
+  /* resumen */
+  .barras { display:grid; gap:7px; }
+  .barra-fila { display:grid; grid-template-columns:minmax(0, 1fr) 46px; gap:2px 8px; align-items:center; }
+  .barra-fila .bf-et { font-size:.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .barra-fila .bf-et .o { color:var(--tenue); display:inline-block; width:20px; }
+  .barra-fila .bf-val { font-size:.8rem; text-align:right; }
+  .barra-fila .bf-pista { grid-column:1 / -1; height:7px; background:var(--linea2); border-radius:3px; position:relative; overflow:hidden; }
+  .barra-fila .bf-pista i { position:absolute; left:0; top:0; bottom:0; border-radius:3px; }
+  .barra-fila .bf-pista i.a { background:var(--curso-sua); box-shadow:inset 0 0 0 1px var(--curso); }
+  .barra-fila .bf-pista i.c { background:var(--ok); }
+  .nota { font-size:.76rem; color:var(--tenue); margin:8px 0 0; }
+  .leyenda-linea { display:flex; gap:14px; font-size:.76rem; color:var(--suave); margin-bottom:8px; }
+  .leyenda-linea span { display:inline-flex; align-items:center; gap:6px; }
+  .leyenda-linea i { width:12px; height:7px; border-radius:2px; }
+
+  .dias { display:flex; align-items:flex-end; gap:4px; height:92px; padding-top:14px; }
+  .dia { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; min-width:0; }
+  .dia b { font-size:.7rem; font-weight:500; color:var(--suave); }
+  .dia i { width:100%; background:var(--acento); border-radius:2px 2px 0 0; min-height:1px; }
+  .dia i.cero { background:var(--linea); }
+  .dia.hoy i { background:var(--curso); }
+  .dias-et { display:flex; gap:4px; margin-top:4px; }
+  .dias-et span { flex:1; text-align:center; font-size:.66rem; color:var(--tenue); min-width:0; }
+
+  .actividad { list-style:none; margin:0; padding:0; }
+  .actividad li { display:grid; grid-template-columns:auto 1fr; gap:1px 10px; padding:7px 0; border-top:1px solid var(--linea2); font-size:.82rem; }
+  .actividad li:first-child { border-top:0; }
+  .actividad .cod { grid-row:1 / span 2; }
+  .actividad .q { color:var(--suave); font-size:.76rem; }
+
+  /* revisar */
+  .rev { list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+  .rev li { border:1px solid var(--linea); border-left:3px solid var(--alerta); border-radius:8px; padding:8px 10px; }
+  .rev li.leve { border-left-color:var(--curso); }
+  .rev li.nota-campo { border-left-color:var(--azul); }
+  .rev .r1 { display:flex; justify-content:space-between; gap:8px; font-size:.78rem; color:var(--suave); }
+  .rev .r2 { font-size:.85rem; margin-top:3px; }
+
+  .cod-btn { border:0; background:none; padding:0; cursor:pointer; color:var(--acento); font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.82rem; font-weight:500; }
+  .cod-btn:hover { text-decoration:underline; text-underline-offset:2px; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+  /* ---------- propios del sitio público ---------- */
+  .aclaracion { margin:4px 0 0; font-size:.8rem; color:var(--suave); max-width:62ch; }
+  .fila .ben { font-family:"IBM Plex Sans", system-ui, sans-serif; }
+  .pie {
+    padding:0 16px 14px; font-size:.76rem; color:var(--tenue);
+    display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 16px;
+  }
+  @media (min-width:1181px) { .pie { flex:none; } }
+  .config {
+    margin:16px; padding:16px 18px; border:1px solid var(--alerta); background:var(--alerta-sua);
+    border-radius:var(--radio); font-size:.9rem;
+  }
+  .config code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.85em; }
+</style>
+</head>
+<body>
+
+<header class="barra">
+  <div>
+    <p class="obra">Agua potable y saneamiento · Hualgayoc, Cajamarca</p>
+    <h1>Avance de obra · Nuevo San Juan Alto</h1>
+    <p class="aclaracion">Avance físico de las unidades básicas de saneamiento (UBS), tal como se reporta cada día desde campo. No reemplaza la valorización oficial de obra.</p>
+  </div>
+  <div class="sync">
+    <span id="sync" class="sync-estado cargando"><i></i><span id="sync-texto">Cargando datos…</span></span>
+    <button id="btn-actualizar" class="boton" type="button">Actualizar</button>
+  </div>
+</header>
+
+<section class="kpis" id="kpis" aria-label="Indicadores"></section>
+
+<main class="tablero">
+  <aside class="caja lista" aria-label="Lista de UBS">
+    <div class="lista-cab">
+      <input id="buscar" class="buscar" type="search" placeholder="Buscar código, ej. UBS-045" autocomplete="off">
+      <div class="chips" id="chips">
+        <button class="chip" type="button" data-f="todas" aria-pressed="true">Todas</button>
+        <button class="chip" type="button" data-f="curso" aria-pressed="false">En ejecución</button>
+        <button class="chip" type="button" data-f="sin" aria-pressed="false">Sin iniciar</button>
+        <button class="chip" type="button" data-f="detenida" aria-pressed="false">Detenidas</button>
+      </div>
+      <div class="selects">
+        <select id="sistema" aria-label="Sistema"><option value="">Ambos sistemas</option></select>
+        <select id="orden" aria-label="Ordenar">
+          <option value="actividad">Última actividad</option>
+          <option value="avance">Mayor avance</option>
+          <option value="codigo">Código</option>
+        </select>
+      </div>
+      <div class="cuenta" id="cuenta"></div>
+    </div>
+    <ul id="lista-ubs"></ul>
+  </aside>
+
+  <section class="caja mapa-caja" aria-label="Mapa">
+    <div id="mapa"></div>
+    <div class="mapa-ctrl">
+      <div class="seg" role="group" aria-label="Capa">
+        <button type="button" data-capa="sat" aria-pressed="true">Satélite</button>
+        <button type="button" data-capa="calles" aria-pressed="false">Calles</button>
+      </div>
+      <div class="seg" role="group" aria-label="Color de los puntos">
+        <button type="button" data-color="estado" aria-pressed="true">Estado</button>
+        <button type="button" data-color="dias" aria-pressed="false">Días sin registro</button>
+      </div>
+    </div>
+    <div class="leyenda" id="leyenda"></div>
+  </section>
+
+  <section class="caja panel" aria-label="Detalle">
+    <div class="pestanas" role="tablist">
+      <button class="pestana" role="tab" type="button" data-tab="ubs" aria-selected="true">UBS</button>
+      <button class="pestana" role="tab" type="button" data-tab="resumen" aria-selected="false">Resumen de obra</button>
+    </div>
+    <div class="contenido" id="contenido"></div>
+  </section>
+</main>
+
+<footer class="pie">
+  <span>Fuente: registros diarios de campo · se actualiza cada minuto</span>
+  <span id="generado"></span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* ======================================================================
+   Pega aquí la URL de tu API pública (la que termina en /exec).
+   ====================================================================== */
+var API_URL = 'https://script.google.com/macros/s/AKfycbxPIB-jejwCHHuZBf8FHyQnHoIp0IJ32H4-WJEsTjZ-LUT5-VIGYHC_S591MinG9U1sSA/exec';
+
+(function () {
+  'use strict';
+
+  var REFRESCO_MS = 60000;
+  var S = {
+    d: null, porId: {}, regsPorUbs: {}, regPorId: {}, sel: null,
+    filtro: 'todas', texto: '', sistema: '', orden: 'actividad',
+    colorPor: 'estado', tab: 'ubs', fotoVista: null,
+    cargando: false, ultimo: 0, primera: true
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+  function pct(x, dec) { return x == null ? '—' : (x * 100).toFixed(dec == null ? 1 : dec) + '%'; }
+  function fCorta(iso) { return iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) : '—'; }
+  function fLarga(iso) { return iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '—'; }
+  function hace(n) {
+    if (n == null) { return 'sin registros'; }
+    if (n <= 0) { return 'hoy'; }
+    if (n === 1) { return 'ayer'; }
+    return 'hace ' + n + ' días';
+  }
+  function haceCorto(n) { return n == null ? '' : n <= 0 ? 'hoy' : n === 1 ? 'ayer' : n + ' d'; }
+  function cmp(a, b) { return a < b ? -1 : a > b ? 1 : 0; }
+
+  var SIGLAS = { PVC: 1, SAL: 1, BIO: 1, UBS: 1 };
+  function oracion(t) {
+    if (!t) { return ''; }
+    var s = String(t).split(' ').map(function (w) {
+      var limpio = w.replace(/[^A-Za-zÁÉÍÓÚÑ0-9]/g, '');
+      if (/\d/.test(w) || SIGLAS[limpio]) { return w; }
+      return w.toLowerCase();
+    }).join(' ');
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  // ------------------------------------------------------------- datos --
+  function pedir() {
+    if (window.__API_SIMULADA__) { return window.__API_SIMULADA__(); }
+    if (!API_URL || API_URL.indexOf('PEGA_AQUI') === 0) {
+      return Promise.reject(new Error('falta configurar API_URL'));
+    }
+    return fetch(API_URL, { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) { throw new Error('el servidor respondió ' + r.status); }
+      return r.json();
+    });
+  }
+
+  function cargar() {
+    if (S.cargando) { return; }
+    S.cargando = true;
+    $('btn-actualizar').disabled = true;
+    marcarSync('cargando', S.d ? 'Actualizando…' : 'Cargando datos…');
+    pedir().then(function (d) {
+      S.d = d;
+      S.ultimo = Date.now();
+      indexar();
+      if (S.primera && !S.sel && d.registros[0]) { S.sel = d.registros[0].ubs; }
+      pintarTodo();
+      S.primera = false;
+      var t = new Date();
+      marcarSync('ok', 'Actualizado ' + ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2));
+      $('generado').textContent = 'Datos al ' + fLarga(d.generado) + ' ' + d.generado.slice(11, 16);
+    }).catch(function (e) {
+      var msg = e && e.message ? e.message : String(e);
+      marcarSync('error', 'No se pudo actualizar' + (S.d ? ' · se muestra lo último cargado' : ''));
+      if (!S.d && msg.indexOf('API_URL') !== -1) {
+        $('contenido').innerHTML = '<div class="config">Falta un paso: abre <code>index.html</code> y pega en ' +
+          '<code>API_URL</code> la dirección de tu API pública (la que termina en <code>/exec</code>).</div>';
+      }
+    }).then(function () {
+      S.cargando = false;
+      $('btn-actualizar').disabled = false;
+    });
+  }
+
+  function marcarSync(clase, texto) {
+    $('sync').className = 'sync-estado ' + clase;
+    $('sync-texto').textContent = texto;
+  }
+
+  function indexar() {
+    S.porId = {}; S.regsPorUbs = {}; S.regPorId = {};
+    S.d.ubs.forEach(function (u) { S.porId[u.id] = u; });
+    S.d.registros.forEach(function (r) {
+      S.regPorId[r.id] = r;
+      (S.regsPorUbs[r.ubs] = S.regsPorUbs[r.ubs] || []).push(r);
+    });
+    if (S.sel && !S.porId[S.sel]) { S.sel = null; }
+  }
+
+  function pintarTodo() { pintarKpis(); pintarSistemas(); pintarLista(); pintarMapa(); pintarPanel(); }
+
+  // ---------------------------------------------------------- indicadores --
+  function pintarKpis() {
+    var k = S.d.kpi;
+    $('kpis').innerHTML =
+      kpi('Avance del módulo', pct(k.avancePrincipal), S.d.escalera.length + ' fases · ' + k.total + ' UBS', k.avancePrincipal) +
+      kpi('UBS iniciadas', k.iniciadas + ' <small>de ' + k.total + '</small>', 'ya tienen al menos una fase', k.total ? k.iniciadas / k.total : 0) +
+      kpi('Módulos concluidos', k.principalConcluidas + ' <small>de ' + k.total + '</small>', 'las ' + S.d.escalera.length + ' fases cerradas', null) +
+      kpi('Con trabajo esta semana', k.activas7 + ' <small>UBS</small>', 'con avance en los últimos 7 días', null) +
+      kpi('Registros de campo', k.registros, k.registrosHoy + ' hoy · ' + k.registros7 + ' en 7 días', null);
+  }
+  function kpi(et, val, sub, frac) {
+    return '<div class="kpi"><div class="et">' + esc(et) + '</div>' +
+      '<div class="val num">' + val + '</div><div class="sub">' + esc(sub) + '</div>' +
+      (frac != null ? '<div class="barrita"><i style="width:' + Math.min(100, frac * 100) + '%"></i></div>' : '') +
+      '</div>';
+  }
+
+  function pintarSistemas() {
+    var sel = $('sistema'), actual = sel.value;
+    var opts = '<option value="">Ambos sistemas</option>';
+    S.d.porSistema.forEach(function (s) {
+      opts += '<option value="' + esc(s.sector) + '">' + esc(s.sector) + ' (' + s.total + ')</option>';
+    });
+    sel.innerHTML = opts;
+    sel.value = actual;
+  }
+
+  // --------------------------------------------------------------- lista --
+  function colorEstado(u) {
+    if (u.estado === 'sin') { return css('--sin'); }
+    if (u.avance >= 1) { return css('--ok'); }
+    return css('--curso');
+  }
+  function colorDias(u) {
+    if (u.diasSin == null) { return css('--sin'); }
+    if (u.avance >= 1) { return css('--azul'); }
+    if (u.diasSin <= 1) { return css('--ok'); }
+    if (u.diasSin <= 3) { return css('--curso'); }
+    return css('--alerta');
+  }
+  function colorUbs(u) { return S.colorPor === 'dias' ? colorDias(u) : colorEstado(u); }
+
+  function filtradas() {
+    var t = S.texto.toLowerCase();
+    var arr = S.d.ubs.filter(function (u) {
+      if (S.sistema && u.sector !== S.sistema) { return false; }
+      if (S.filtro === 'curso' && u.estado !== 'curso') { return false; }
+      if (S.filtro === 'sin' && u.estado !== 'sin') { return false; }
+      if (S.filtro === 'detenida' && !(u.estado === 'curso' && u.diasSin != null && u.diasSin >= 4)) { return false; }
+      if (t && u.codigo.toLowerCase().indexOf(t) === -1) { return false; }
+      return true;
+    });
+    arr.sort(function (a, b) {
+      if (S.orden === 'avance') { return (b.avance - a.avance) || cmp(a.codigo, b.codigo); }
+      if (S.orden === 'codigo') { return cmp(a.codigo, b.codigo); }
+      return cmp(b.ultima || '', a.ultima || '') || cmp(a.codigo, b.codigo);
+    });
+    return arr;
+  }
+
+  function pintarLista() {
+    var arr = filtradas();
+    $('cuenta').textContent = arr.length + ' de ' + S.d.ubs.length + ' UBS';
+    var html = '';
+    arr.forEach(function (u) {
+      html += '<li><button type="button" class="fila" data-id="' + esc(u.id) + '"' +
+        (u.id === S.sel ? ' aria-current="true"' : '') + '>' +
+        '<span class="punto" style="background:' + colorUbs(u) + '"></span>' +
+        '<span class="cod mono">' + esc(u.codigo) + '</span>' +
+        '<span class="ben">' + esc(u.sector) + '</span>' +
+        '<span class="pct num">' + (u.estado === 'sin' ? '—' : pct(u.avance, 0)) + '</span>' +
+        '<span class="mini"><i style="width:' + (u.avance * 100) + '%"></i></span>' +
+        '<span class="cuando">' + haceCorto(u.diasSin) + '</span>' +
+        '</button></li>';
+    });
+    $('lista-ubs').innerHTML = html || '<li class="vacio" style="padding:14px 12px">Ninguna UBS calza con el filtro.</li>';
+  }
+
+  // ---------------------------------------------------------------- mapa --
+  var mapa = L.map('mapa', { zoomControl: true, attributionControl: true });
+  mapa.setView([-6.785, -78.562], 15);
+  var capas = {
+    sat: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom: 20, maxNativeZoom: 18, attribution: 'Imágenes © Esri' }),
+    calles: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      { maxZoom: 20, maxNativeZoom: 19, attribution: '© OpenStreetMap' })
+  };
+  capas.sat.addTo(mapa);
+  var capaUbs = L.layerGroup().addTo(mapa);
+
+  function pintarMapa() {
+    capaUbs.clearLayers();
+    var visibles = {};
+    filtradas().forEach(function (u) { visibles[u.id] = true; });
+    var limites = [], elegido = null;
+    S.d.ubs.forEach(function (u) {
+      if (u.lat == null || u.lon == null) { return; }
+      limites.push([u.lat, u.lon]);
+      var es = u.id === S.sel;
+      var m = L.circleMarker([u.lat, u.lon], {
+        radius: es ? 10 : 6.5, color: es ? css('--tinta') : '#ffffff', weight: es ? 3 : 1.5,
+        fillColor: colorUbs(u), fillOpacity: visibles[u.id] ? 0.95 : 0.18, opacity: visibles[u.id] ? 1 : 0.3
+      });
+      m.bindTooltip('<b>' + esc(u.codigo) + '</b> · ' + (u.estado === 'sin' ? 'sin iniciar' : pct(u.avance)),
+                    { direction: 'top', offset: [0, -6] });
+      m.on('click', function () { elegir(u.id, false); });
+      m.addTo(capaUbs);
+      if (es) { elegido = m; }
+    });
+    if (elegido) { elegido.bringToFront(); }
+    if (S.primera && limites.length) {
+      mapa.invalidateSize();
+      mapa.fitBounds(limites, { padding: [28, 28], maxZoom: 17 });
+    }
+    pintarLeyenda();
+  }
+
+  function pintarLeyenda() {
+    var items = S.colorPor === 'dias'
+      ? [['--ok', 'Registro hoy o ayer'], ['--curso', 'Hace 2 a 3 días'], ['--alerta', 'Hace 4 días o más'],
+         ['--azul', 'Módulo concluido'], ['--sin', 'Sin registros']]
+      : [['--curso', 'En ejecución'], ['--ok', 'Módulo concluido'], ['--sin', 'Sin iniciar']];
+    $('leyenda').innerHTML = items.map(function (x) {
+      return '<span><i style="background:' + css(x[0]) + '"></i>' + x[1] + '</span>';
+    }).join('');
+  }
+
+  // --------------------------------------------------------------- panel --
+  function pintarPanel() {
+    document.querySelectorAll('.pestana').forEach(function (b) {
+      b.setAttribute('aria-selected', String(b.dataset.tab === S.tab));
+    });
+    $('contenido').innerHTML = S.tab === 'resumen' ? htmlResumen() : htmlUbs();
+  }
+
+  function htmlUbs() {
+    var u = S.porId[S.sel];
+    if (!u) { return '<p class="vacio">Elige una UBS en el mapa o en la lista.</p>'; }
+    var etq = { sin: 'Sin iniciar', curso: 'En ejecución', concluida: 'Concluida' }[u.estado];
+    var meta = [u.sector,
+      u.nRegs ? u.nRegs + (u.nRegs === 1 ? ' registro' : ' registros') + ' · último ' + hace(u.diasSin) : 'sin registros']
+      .map(esc).join(' · ');
+    var h = '<div class="ubs-cab"><div><div class="ubs-cod mono">' + esc(u.codigo) + '</div>' +
+      '<div class="ubs-meta">' + meta + '</div></div><span class="etiqueta ' + u.estado + '">' + etq + '</span></div>';
+
+    S.d.especialidades.forEach(function (e) {
+      var st = u.esp[e.nombre];
+      var nombresFase = S.d.fases.filter(function (f) { return f.esp === e.nombre; });
+      var segs = '';
+      for (var o = 1; o <= st.total; o++) {
+        var f = nombresFase[o - 1];
+        var cls = o <= st.cerradas ? 'hecha' : (o === st.max && st.frac < 1 ? 'curso' : '');
+        segs += '<span class="' + cls + '"' + (cls === 'curso' ? ' style="--f:' + st.frac + '"' : '') +
+                ' title="' + o + '. ' + esc(oracion(f ? f.nombre : '')) + '"></span>';
+      }
+      var pie = !st.max ? 'Todavía sin avance.'
+        : st.frac >= 1 ? 'Última cerrada: fase ' + st.max + ', ' + esc(oracion(st.fase)) + '.'
+        : 'En curso: fase ' + st.max + ', ' + esc(oracion(st.fase)) + ' (' + pct(st.frac, 0) + ').';
+      h += '<div class="esp"><div class="esp-cab"><b>' + esc(oracion(e.nombre)) + '</b>' +
+           '<span class="num">' + st.cerradas + ' de ' + st.total + ' · ' + pct(st.avance) + '</span></div>' +
+           '<div class="esc" role="img" aria-label="' + st.cerradas + ' de ' + st.total + ' fases cerradas">' + segs + '</div>' +
+           '<div class="esp-pie">' + pie + '</div></div>';
+    });
+
+    var regs = S.regsPorUbs[u.id] || [];
+    var conFoto = regs.filter(function (r) { return r.foto; });
+    var vista = S.fotoVista && S.regPorId[S.fotoVista] && S.regPorId[S.fotoVista].ubs === u.id ? S.fotoVista
+      : (conFoto.length ? conFoto[0].id : null);
+    S.fotoVista = vista;
+
+    h += '<h2>Foto de obra</h2><div class="foto">';
+    if (vista) {
+      var rf = S.regPorId[vista];
+      h += '<img src="' + esc(rf.foto) + '" alt="Foto de obra de ' + esc(u.codigo) + ' del ' + fLarga(rf.fecha) + '" ' +
+           'loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div class=&quot;estado-foto&quot;>La foto no está compartida públicamente en Drive.</div>\'">' +
+           '<div class="foto-pie"><span>' + fLarga(rf.fecha) + ' · ' + (rf.orden ? 'fase ' + rf.orden + ', ' + esc(oracion(rf.fase)) : 'sin fase') + '</span></div>';
+    } else {
+      h += '<div class="estado-foto">Esta UBS todavía no tiene fotos.</div>';
+    }
+    h += '</div>';
+
+    h += '<h2>Historial</h2>';
+    if (!regs.length) { return h + '<p class="vacio">Todavía no hay registros.</p>'; }
+    h += '<ul class="hist">';
+    regs.forEach(function (r) {
+      h += '<li class="' + (r.pct >= 1 ? 'term' : '') + '">' +
+        '<div class="h1"><span>' + fLarga(r.fecha) + '</span>' + (r.esp ? '<span>' + esc(oracion(r.esp)) + '</span>' : '') + '</div>' +
+        '<div class="h2">' + (r.orden ? '<span class="num">' + r.orden + '.</span> ' + esc(oracion(r.fase)) : '<i>Sin fase</i>') +
+          ' · <b class="num">' + (r.pct == null ? 'sin %' : pct(r.pct, 0)) + '</b></div>' +
+        (r.foto ? '<div class="h3"><button type="button" class="link" data-foto="' + esc(r.id) + '">' +
+          (r.id === vista ? 'Foto mostrada' : 'Ver foto') + '</button></div>' : '') +
+        '</li>';
+    });
+    return h + '</ul>';
+  }
+
+  function htmlResumen() {
+    var d = S.d, h = '';
+    var max = d.ubs.length || 1;
+
+    h += '<h2>Avance por especialidad</h2><div class="barras">';
+    d.especialidades.forEach(function (e) {
+      h += '<div class="barra-fila"><span class="bf-et">' + esc(oracion(e.nombre)) +
+           ' <span style="color:var(--tenue)">· ' + e.total + ' fases · ' + e.iniciadas + ' UBS iniciadas</span></span>' +
+           '<span class="bf-val num">' + pct(e.avance) + '</span>' +
+           '<span class="bf-pista"><i class="c" style="width:' + (e.avance * 100) + '%"></i></span></div>';
+    });
+    h += '</div><p class="nota">Promedio sobre las ' + d.ubs.length + ' UBS, incluidas las que todavía no empiezan.</p>';
+
+    h += '<h2>Escalera del módulo</h2>' +
+         '<div class="leyenda-linea"><span><i style="background:var(--curso-sua);box-shadow:inset 0 0 0 1px var(--curso)"></i>Alcanzaron la fase</span>' +
+         '<span><i style="background:var(--ok)"></i>La cerraron</span></div><div class="barras">';
+    d.escalera.forEach(function (e) {
+      h += '<div class="barra-fila" title="' + e.alcanzaron + ' UBS alcanzaron esta fase, ' + e.cerradas + ' la cerraron">' +
+           '<span class="bf-et"><span class="o num">' + e.orden + '</span>' + esc(oracion(e.nombre)) + '</span>' +
+           '<span class="bf-val num">' + e.alcanzaron + '</span>' +
+           '<span class="bf-pista"><i class="a" style="width:' + (e.alcanzaron / max * 100) + '%"></i>' +
+           '<i class="c" style="width:' + (e.cerradas / max * 100) + '%"></i></span></div>';
+    });
+    h += '</div><p class="nota">Escala completa = ' + d.ubs.length + ' UBS. Una UBS que va en la fase 8 cuenta en las fases 1 a 8.</p>';
+
+    h += '<h2>Por sistema</h2><div class="barras">';
+    d.porSistema.forEach(function (s) {
+      h += '<div class="barra-fila"><span class="bf-et">' + esc(s.sector) +
+           ' <span style="color:var(--tenue)">· ' + s.iniciadas + ' de ' + s.total + ' iniciadas</span></span>' +
+           '<span class="bf-val num">' + pct(s.avance) + '</span>' +
+           '<span class="bf-pista"><i class="c" style="width:' + (s.avance * 100) + '%"></i></span></div>';
+    });
+    h += '</div>';
+
+    var top = 1;
+    d.porDia.forEach(function (x) { if (x.n > top) { top = x.n; } });
+    h += '<h2>Registros de campo por día</h2><div class="dias">';
+    d.porDia.forEach(function (x) {
+      h += '<div class="dia' + (x.dia === d.hoy ? ' hoy' : '') + '" title="' + fLarga(x.dia) + ': ' + x.n + '">' +
+           (x.n ? '<b class="num">' + x.n + '</b>' : '') +
+           '<i class="' + (x.n ? '' : 'cero') + '" style="height:' + (x.n ? Math.max(4, x.n / top * 70) : 1) + 'px"></i></div>';
+    });
+    h += '</div><div class="dias-et">';
+    d.porDia.forEach(function (x, i) {
+      h += '<span>' + (i % 2 === (d.porDia.length - 1) % 2 ? x.dia.slice(8, 10) : '') + '</span>';
+    });
+    h += '</div>';
+
+    h += '<h2>Actividad reciente</h2><ul class="actividad">';
+    d.registros.slice(0, 12).forEach(function (r) {
+      h += '<li><button type="button" class="cod-btn" data-ir="' + esc(r.ubs) + '">' + esc(r.codigo) + '</button>' +
+           '<span>' + (r.orden ? r.orden + '. ' + esc(oracion(r.fase)) : 'Sin fase') + ' · ' + (r.pct == null ? 'sin %' : pct(r.pct, 0)) + '</span>' +
+           '<span class="q">' + fLarga(r.fecha) + '</span></li>';
+    });
+    return h + '</ul>';
+  }
+
+  // ---------------------------------------------------------- interacción --
+  function elegir(id, centrar) {
+    S.sel = id;
+    S.fotoVista = null;
+    S.tab = 'ubs';
+    pintarLista();
+    pintarMapa();
+    pintarPanel();
+    var u = S.porId[id];
+    if (centrar && u && u.lat != null) { mapa.setView([u.lat, u.lon], Math.max(mapa.getZoom(), 17)); }
+    var fila = document.querySelector('.fila[data-id="' + CSS.escape(id) + '"]');
+    if (fila) { fila.scrollIntoView({ block: 'nearest' }); }
+    if (window.innerWidth <= 760) { document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  }
+
+  $('lista-ubs').addEventListener('click', function (e) {
+    var b = e.target.closest('.fila');
+    if (b) { elegir(b.dataset.id, true); }
+  });
+  $('contenido').addEventListener('click', function (e) {
+    var ir = e.target.closest('[data-ir]');
+    if (ir) { elegir(ir.dataset.ir, true); return; }
+    var fo = e.target.closest('[data-foto]');
+    if (fo) { S.fotoVista = fo.dataset.foto; $('contenido').innerHTML = htmlUbs(); }
+  });
+  document.querySelectorAll('.pestana').forEach(function (b) {
+    b.addEventListener('click', function () { S.tab = b.dataset.tab; if (S.d) { pintarPanel(); } });
+  });
+  $('chips').addEventListener('click', function (e) {
+    var c = e.target.closest('.chip');
+    if (!c) { return; }
+    S.filtro = c.dataset.f;
+    document.querySelectorAll('.chip').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
+    if (S.d) { pintarLista(); pintarMapa(); }
+  });
+  $('buscar').addEventListener('input', function () { S.texto = this.value.trim(); if (S.d) { pintarLista(); pintarMapa(); } });
+  $('sistema').addEventListener('change', function () { S.sistema = this.value; if (S.d) { pintarLista(); pintarMapa(); } });
+  $('orden').addEventListener('change', function () { S.orden = this.value; if (S.d) { pintarLista(); } });
+  document.querySelectorAll('[data-capa]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      Object.keys(capas).forEach(function (k) { if (mapa.hasLayer(capas[k])) { mapa.removeLayer(capas[k]); } });
+      capas[b.dataset.capa].addTo(mapa);
+      document.querySelectorAll('[data-capa]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    });
+  });
+  document.querySelectorAll('[data-color]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      S.colorPor = b.dataset.color;
+      document.querySelectorAll('[data-color]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      if (S.d) { pintarLista(); pintarMapa(); }
+    });
+  });
+  $('btn-actualizar').addEventListener('click', cargar);
+
+  setInterval(function () { if (!document.hidden) { cargar(); } }, REFRESCO_MS);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && Date.now() - S.ultimo > REFRESCO_MS) { cargar(); }
+  });
+  window.addEventListener('resize', function () { mapa.invalidateSize(); });
+  setTimeout(function () { mapa.invalidateSize(); }, 300);
+
+  cargar();
+})();
+</script>
+</body>
+</html>
