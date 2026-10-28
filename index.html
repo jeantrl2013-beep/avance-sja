@@ -371,7 +371,14 @@ var API_URL = 'https://script.google.com/macros/s/AKfycbxPIB-jejwCHHuZBf8FHyQnHo
     });
   }
   function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
-  function pct(x, dec) { return x == null ? '—' : (x * 100).toFixed(dec == null ? 1 : dec) + '%'; }
+  // Nunca redondea a 100% lo que no llegó: 99.7% con 0 decimales sale 99%, no 100%.
+  function pct(x, dec) {
+    if (x == null) { return '—'; }
+    dec = dec == null ? 1 : dec;
+    var s = (x * 100).toFixed(dec);
+    if (x < 1 && +s >= 100) { s = (100 - Math.pow(10, -dec)).toFixed(dec); }
+    return s + '%';
+  }
   function fCorta(iso) { return iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) : '—'; }
   function fLarga(iso) { return iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '—'; }
   function hace(n) {
@@ -406,12 +413,21 @@ var API_URL = 'https://script.google.com/macros/s/AKfycbxPIB-jejwCHHuZBf8FHyQnHo
     });
   }
 
+  // Si la API devuelve un error en JSON o datos a medias, se conserva lo último cargado.
+  function completa(d) {
+    return d && d.kpi && d.generado &&
+      ['ubs', 'registros', 'fases', 'especialidades', 'escalera', 'porSistema', 'porDia'].every(function (k) {
+        return Array.isArray(d[k]);
+      });
+  }
+
   function cargar() {
     if (S.cargando) { return; }
     S.cargando = true;
     $('btn-actualizar').disabled = true;
     marcarSync('cargando', S.d ? 'Actualizando…' : 'Cargando datos…');
     pedir().then(function (d) {
+      if (!completa(d)) { throw new Error(d && d.error ? String(d.error) : 'respuesta incompleta de la API'); }
       S.d = d;
       S.ultimo = Date.now();
       indexar();
@@ -427,6 +443,8 @@ var API_URL = 'https://script.google.com/macros/s/AKfycbxPIB-jejwCHHuZBf8FHyQnHo
       if (!S.d && msg.indexOf('API_URL') !== -1) {
         $('contenido').innerHTML = '<div class="config">Falta un paso: abre <code>index.html</code> y pega en ' +
           '<code>API_URL</code> la dirección de tu API pública (la que termina en <code>/exec</code>).</div>';
+      } else if (!S.d) {
+        $('contenido').innerHTML = '<p class="vacio">No se pudieron cargar los datos de obra. Prueba con «Actualizar» en un momento.</p>';
       }
     }).then(function () {
       S.cargando = false;
