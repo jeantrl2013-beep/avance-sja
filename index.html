@@ -4,56 +4,93 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Avance de obra · Nuevo San Juan Alto</title>
-<meta name="description" content="Avance físico de las 165 unidades básicas de saneamiento de Nuevo San Juan Alto, Hualgayoc, actualizado desde los registros diarios de campo.">
+<meta name="description" content="Avance físico de las UBS, cámaras rompe presión tipo 7 y válvulas de Nuevo San Juan Alto, Hualgayoc, actualizado desde los registros diarios de campo.">
 <meta property="og:title" content="Avance de obra · Nuevo San Juan Alto">
-<meta property="og:description" content="Avance físico de las 165 UBS, con mapa y fotos de obra, actualizado desde campo.">
+<meta property="og:description" content="Resumen de avance de UBS, CRP-7 y válvulas, con mapa y fotos de obra, actualizado desde campo.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Oswald:wght@500;600&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   :root {
-    --fondo:#f2f1ed; --sup:#ffffff; --sup2:#f7f6f2; --tinta:#1b1c1e; --suave:#62656a;
-    --tenue:#94968f; --linea:#e0ddd5; --linea2:#ebe9e3;
-    --acento:#1f3864; --acento-sua:#e5ebf5;
-    --sin:#a9a79f; --curso:#c47d0c; --curso-sua:#f7ead3;
-    --ok:#2c7a4b; --ok-sua:#e1efe6; --alerta:#b23e2a; --alerta-sua:#f7e3de;
-    --azul:#2c62ad; --gps:#2c62ad;
-    --radio:10px;
+    --contenido:#fcf3f1; --lateral:#e9f1fc; --activo:#1662d4; --sup:#ffffff; --sup2:#faf7f6;
+    --tinta:#1d1e20; --suave:#5d6168; --tenue:#9a9ea4; --linea:#ece3e0; --linea2:#f2ecea;
+    --rojo:#d3001f; --rojo-sua:#fde9eb;
+    --f-amarillo:#f5c400; --f-verde:#14905a; --f-azul:#4b8df0; --f-rojo:#d3001f;
+    --ok:#2a8a50; --ok-sua:#e2f2e8; --curso:#d88a00; --curso-sua:#fbefd7; --sin:#a7a9ad;
+    --alerta:#c4321f; --alerta-sua:#fbe4df; --azul:#2c62ad;
+    --sombra:0 2px 10px rgba(60,30,20,.07);
+    --radio:12px;
+    --display:"Oswald", "Arial Narrow", sans-serif;
   }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --fondo:#101214; --sup:#181b1e; --sup2:#1e2225; --tinta:#e8e6e1; --suave:#a3a6a9;
-      --tenue:#6f7276; --linea:#2b2f33; --linea2:#24282b;
-      --acento:#9cb7e7; --acento-sua:#1b2537;
-      --sin:#6a6d70; --curso:#e3a23a; --curso-sua:#33280f;
-      --ok:#5bbf84; --ok-sua:#13281c; --alerta:#ec8774; --alerta-sua:#34170f;
-      --azul:#7ea8e8; --gps:#8fb4f0;
+    :root:not([data-theme="light"]) {
+      --contenido:#171515; --lateral:#141c28; --activo:#3d7fe6; --sup:#211f1f; --sup2:#2a2727;
+      --tinta:#ece9e6; --suave:#aba7a3; --tenue:#77736f; --linea:#353130; --linea2:#2c2928;
+      --rojo:#ff5a6e; --rojo-sua:#3a1a1e;
+      --f-amarillo:#e2b600; --f-verde:#2fb276; --f-azul:#6aa2f5; --f-rojo:#ff5a6e;
+      --ok:#55c283; --ok-sua:#16291e; --curso:#eda53a; --curso-sua:#33280f; --sin:#6d6f73;
+      --alerta:#ef8572; --alerta-sua:#371a14; --azul:#7ea8e8;
+      --sombra:0 2px 10px rgba(0,0,0,.35);
     }
+  }
+  :root[data-theme="dark"] {
+    --contenido:#171515; --lateral:#141c28; --activo:#3d7fe6; --sup:#211f1f; --sup2:#2a2727;
+    --tinta:#ece9e6; --suave:#aba7a3; --tenue:#77736f; --linea:#353130; --linea2:#2c2928;
+    --rojo:#ff5a6e; --rojo-sua:#3a1a1e;
+    --f-amarillo:#e2b600; --f-verde:#2fb276; --f-azul:#6aa2f5; --f-rojo:#ff5a6e;
+    --ok:#55c283; --ok-sua:#16291e; --curso:#eda53a; --curso-sua:#33280f; --sin:#6d6f73;
+    --alerta:#ef8572; --alerta-sua:#371a14; --azul:#7ea8e8;
+    --sombra:0 2px 10px rgba(0,0,0,.35);
   }
 
   * { box-sizing:border-box; }
   html { -webkit-text-size-adjust:100%; }
   body {
-    margin:0; background:var(--fondo); color:var(--tinta);
+    margin:0; background:var(--contenido); color:var(--tinta);
     font:15px/1.45 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     -webkit-font-smoothing:antialiased;
   }
-  button { font:inherit; color:inherit; }
-  :focus-visible { outline:2px solid var(--acento); outline-offset:2px; }
-  .mono { font-family:"IBM Plex Mono", ui-monospace, Consolas, monospace; }
+  button, select, input { font:inherit; color:inherit; }
+  :focus-visible { outline:2px solid var(--activo); outline-offset:2px; }
   .num { font-variant-numeric:tabular-nums; }
+  svg.ic { width:22px; height:22px; flex:none; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
 
-  /* ---------- cabecera ---------- */
-  .barra {
-    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
-    gap:10px 20px; padding:14px 16px 12px;
+  /* ---------------- armazón ---------------- */
+  .app { display:grid; grid-template-columns:250px minmax(0, 1fr); min-height:100vh; }
+  .lateral {
+    background:var(--lateral); position:sticky; top:0; height:100vh; overflow:auto;
+    display:flex; flex-direction:column; padding:22px 0 16px;
   }
-  .obra { margin:0; font-size:.72rem; letter-spacing:.11em; text-transform:uppercase;
-          color:var(--suave); font-weight:500; }
-  h1 { margin:2px 0 0; font-size:1.3rem; font-weight:600; letter-spacing:-.01em; }
-  .sync { display:flex; align-items:center; gap:10px; }
+  .marca { padding:0 24px 18px; }
+  .marca b { display:block; font:600 1.45rem/1 var(--display); letter-spacing:.02em; color:var(--activo); text-transform:uppercase; }
+  .marca span { display:block; font-size:.74rem; color:var(--suave); margin-top:5px; letter-spacing:.03em; }
+  .rapidos { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 24px; }
+  .rapido {
+    display:flex; flex-direction:column; align-items:center; gap:6px; padding:12px 6px 10px;
+    border:1.5px solid var(--activo); border-radius:6px; background:var(--sup); cursor:pointer;
+    font:500 .86rem/1.1 var(--display); letter-spacing:.03em; text-transform:uppercase; color:var(--tinta);
+  }
+  .rapido:hover { background:var(--sup2); }
+  .rapido.hecho { border-color:var(--ok); color:var(--ok); }
+  .sep { height:1px; background:color-mix(in srgb, var(--tinta) 14%, transparent); margin:20px 24px 14px; }
+  .nav { display:flex; flex-direction:column; }
+  .nav a {
+    display:flex; align-items:center; gap:16px; padding:15px 24px; text-decoration:none; color:var(--tinta);
+    font:500 1.08rem/1 var(--display); letter-spacing:.04em; text-transform:uppercase;
+  }
+  .nav a:hover { background:color-mix(in srgb, var(--activo) 9%, transparent); }
+  .nav a[aria-current="page"] { background:var(--activo); color:#fff; }
+  .nuevo { font:600 .64rem/1 "IBM Plex Sans", sans-serif; letter-spacing:.04em; background:#a8323f; color:#fff; padding:4px 7px; border-radius:4px; }
+  .lateral .pie-lat { margin-top:auto; padding:16px 24px 0; font-size:.74rem; color:var(--suave); }
+
+  .cabecera {
+    background:var(--sup); box-shadow:0 1px 0 var(--linea); position:sticky; top:0; z-index:900;
+    display:flex; align-items:center; justify-content:space-between; gap:10px 16px; padding:12px 28px; flex-wrap:wrap;
+  }
+  .cabecera .obra { font-size:.8rem; color:var(--suave); }
+  .cabecera .der { display:flex; align-items:center; gap:14px; }
   .sync-estado { display:inline-flex; align-items:center; gap:7px; font-size:.84rem; color:var(--suave); }
   .sync-estado i { width:8px; height:8px; border-radius:50%; background:var(--tenue); flex:none; }
   .sync-estado.ok i { background:var(--ok); }
@@ -61,290 +98,297 @@
   .sync-estado.error { color:var(--alerta); }
   .sync-estado.error i { background:var(--alerta); }
   @keyframes latido { 50% { opacity:.25; } }
-  .boton {
-    border:1px solid var(--linea); background:var(--sup); border-radius:8px;
-    padding:6px 12px; cursor:pointer; font-size:.86rem; font-weight:500;
+  .pastilla {
+    display:inline-flex; align-items:center; gap:8px; border:1.5px solid var(--rojo); color:var(--rojo);
+    background:var(--sup); border-radius:999px; padding:7px 18px; cursor:pointer; font-weight:600; font-size:.9rem;
   }
-  .boton:hover { border-color:var(--acento); color:var(--acento); }
-  .boton:disabled { opacity:.5; cursor:default; }
+  .pastilla:hover { background:var(--rojo-sua); }
+  .pastilla:disabled { opacity:.5; cursor:default; }
+  .pastilla svg.ic { width:18px; height:18px; }
 
-  /* ---------- indicadores ---------- */
-  .kpis {
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
-    gap:10px; padding:0 16px 12px;
-  }
-  .kpi { background:var(--sup); border:1px solid var(--linea); border-radius:var(--radio); padding:11px 14px 12px; }
-  .kpi .et { font-size:.74rem; color:var(--suave); letter-spacing:.02em; }
-  .kpi .val { font-size:1.65rem; font-weight:600; letter-spacing:-.02em; line-height:1.15; margin-top:3px; }
-  .kpi .val small { font-size:.95rem; font-weight:500; color:var(--suave); letter-spacing:0; }
-  .kpi .sub { font-size:.78rem; color:var(--suave); margin-top:2px; }
-  .kpi .barrita { height:4px; background:var(--linea2); border-radius:2px; margin-top:8px; overflow:hidden; }
-  .kpi .barrita i { display:block; height:100%; background:var(--acento); border-radius:2px; }
-  .kpi.alerta .val { color:var(--alerta); }
+  .principal { min-width:0; display:flex; flex-direction:column; }
+  .vista { padding:26px 28px 30px; }
+  .vista[hidden] { display:none; }
+  h1 { font:600 2.1rem/1.1 var(--display); text-transform:uppercase; letter-spacing:.01em; margin:0; }
+  .aclaracion { margin:6px 0 0; font-size:.86rem; color:var(--suave); max-width:70ch; }
+  .fila-tit { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px 20px; margin-bottom:20px; }
 
-  /* ---------- tablero ---------- */
-  .tablero {
-    display:grid; grid-template-columns:300px minmax(0, 1fr) 410px;
-    gap:12px; padding:0 16px 16px;
-  }
-  .caja { background:var(--sup); border:1px solid var(--linea); border-radius:var(--radio);
-          display:flex; flex-direction:column; min-height:0; overflow:hidden; }
-  @media (min-width:1181px) {
-    body { height:100vh; display:flex; flex-direction:column; overflow:hidden; }
-    .tablero { flex:1; min-height:0; }
-  }
-  @media (max-width:1180px) {
-    .tablero { grid-template-columns:minmax(0, 1fr) 380px; }
-    .lista { grid-column:1 / -1; order:3; max-height:560px; }
-    .mapa-caja, .panel { height:66vh; min-height:480px; }
-  }
-  @media (max-width:760px) {
-    .tablero { display:flex; flex-direction:column; }
-    .mapa-caja { height:56vh; min-height:360px; order:1; }
-    .panel { height:auto; max-height:none; order:2; }
-    .lista { order:3; max-height:70vh; }
-    h1 { font-size:1.1rem; }
-    .kpi .val { font-size:1.35rem; }
-  }
+  .seg { display:inline-flex; background:var(--sup); border:1px solid var(--linea); border-radius:999px; padding:3px; box-shadow:var(--sombra); }
+  .seg button { border:0; background:transparent; padding:5px 13px; border-radius:999px; font-size:.82rem; cursor:pointer; color:var(--suave); white-space:nowrap; }
+  .seg button[aria-pressed="true"] { background:var(--activo); color:#fff; }
 
-  /* ---------- lista ---------- */
-  .lista-cab { padding:12px 12px 10px; border-bottom:1px solid var(--linea); display:grid; gap:8px; }
-  .buscar {
-    width:100%; border:1px solid var(--linea); background:var(--sup2); border-radius:8px;
-    padding:7px 10px; font:inherit; font-size:.9rem; color:var(--tinta);
+  /* ---------------- tarjetas ---------------- */
+  .tarjeta {
+    background:var(--sup); border-radius:var(--radio); box-shadow:var(--sombra);
+    border-top:6px solid var(--franja, transparent); margin-bottom:18px; overflow:hidden;
   }
-  .chips { display:flex; flex-wrap:wrap; gap:5px; }
-  .chip {
-    border:1px solid var(--linea); background:transparent; border-radius:999px;
-    padding:3px 10px; font-size:.78rem; cursor:pointer; color:var(--suave);
+  .tarjeta.borde { border:1px solid color-mix(in srgb, var(--f-verde) 30%, var(--linea)); border-top-width:1px; }
+  .t-cab { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px 14px; padding:18px 22px 12px; }
+  .t-cab h2 { margin:0; font:500 1.45rem/1.1 var(--display); text-transform:uppercase; letter-spacing:.015em; }
+  .t-cab p { margin:3px 0 0; font-size:.82rem; color:var(--suave); }
+  .t-acc { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; }
+  .ver-mas { display:inline-flex; align-items:center; gap:6px; color:var(--rojo); font-weight:600; font-size:.9rem; text-decoration:none; border:0; background:none; cursor:pointer; padding:0; white-space:nowrap; }
+  .ver-mas:hover { text-decoration:underline; text-underline-offset:3px; }
+  .ver-mas svg.ic { width:16px; height:16px; stroke-width:2; }
+  .mini-boton { border:1px solid var(--linea); background:var(--sup); border-radius:8px; padding:5px 11px; font-size:.8rem; cursor:pointer; color:var(--suave); }
+  .mini-boton:hover { border-color:var(--activo); color:var(--activo); }
+  .mini-boton.hecho { border-color:var(--ok); color:var(--ok); }
+  .t-cab select, .barra-ctrl select {
+    border:1px solid var(--linea); background:var(--sup2); border-radius:8px; padding:5px 8px; font-size:.84rem; max-width:100%;
   }
-  .chip[aria-pressed="true"] { background:var(--tinta); color:var(--sup); border-color:var(--tinta); }
-  .selects { display:flex; gap:6px; }
-  .selects select {
-    flex:1; min-width:0; border:1px solid var(--linea); background:var(--sup2); border-radius:8px;
-    padding:5px 8px; font:inherit; font-size:.8rem; color:var(--tinta);
-  }
-  .cuenta { font-size:.75rem; color:var(--tenue); }
-  #lista-ubs { list-style:none; margin:0; padding:4px 0; overflow:auto; flex:1; }
-  .fila {
-    width:100%; display:grid; grid-template-columns:10px 64px minmax(0,1fr) 44px;
-    grid-template-rows:auto auto; column-gap:8px; row-gap:3px; align-items:center;
-    text-align:left; border:0; background:transparent; padding:7px 12px; cursor:pointer;
-    border-left:3px solid transparent;
-  }
-  .fila:hover { background:var(--sup2); }
-  .fila[aria-current="true"] { background:var(--acento-sua); border-left-color:var(--acento); }
-  .fila .punto { width:9px; height:9px; border-radius:50%; grid-row:1 / span 2; }
-  .fila .cod { font-size:.82rem; font-weight:500; }
-  .fila .ben { font-size:.82rem; color:var(--suave); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .fila .pct { font-size:.8rem; text-align:right; }
-  .fila .mini { grid-column:2 / 4; height:3px; background:var(--linea2); border-radius:2px; overflow:hidden; }
-  .fila .mini i { display:block; height:100%; background:var(--curso); }
-  .fila .cuando { font-size:.7rem; color:var(--tenue); text-align:right; }
+  .rejilla { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:0 18px; }
+  .rejilla .tarjeta { min-width:0; }
+  @media (max-width:1250px) { .rejilla { grid-template-columns:minmax(0, 1fr); } }
 
-  /* ---------- mapa ---------- */
-  .mapa-caja { position:relative; }
-  #mapa { flex:1; min-height:0; background:var(--sup2); }
-  .mapa-ctrl {
-    position:absolute; top:10px; right:10px; z-index:500; display:flex; flex-direction:column;
-    gap:6px; align-items:flex-end;
+  .frescura { display:flex; align-items:center; gap:18px; padding:16px 22px; }
+  .frescura .medalla { width:46px; height:46px; border-radius:50%; display:grid; place-items:center; background:var(--ok-sua); color:var(--ok); flex:none; }
+  .frescura.viejo .medalla { background:var(--alerta-sua); color:var(--alerta); }
+  .frescura .et { font:500 .95rem/1.1 var(--display); text-transform:uppercase; letter-spacing:.04em; }
+  .frescura .tx { font-size:.95rem; color:var(--suave); margin-top:3px; }
+  .frescura.viejo .tx b { color:var(--alerta); }
+
+  /* ---------------- tablas ---------------- */
+  .t-scroll { overflow-x:auto; }
+  table.tb { width:100%; border-collapse:collapse; font-size:.9rem; }
+  .tb th, .tb td { padding:9px 14px; border-bottom:1px solid var(--linea2); text-align:right; white-space:nowrap; }
+  .tb thead th { font:500 .78rem/1.2 var(--display); letter-spacing:.06em; text-transform:uppercase; color:var(--suave); background:var(--sup2); }
+  .tb th:first-child, .tb td:first-child { padding-left:22px; }
+  .tb th:last-child, .tb td:last-child { padding-right:22px; }
+  .tb .izq { text-align:left; }
+  .tb td.fase { white-space:normal; min-width:190px; }
+  .tb tbody tr:hover td { background:var(--sup2); }
+  .tb tr.cero td { color:var(--tenue); }
+  .tb tr.cero td b { color:var(--tenue); }
+  .tb tfoot td { font-weight:600; background:var(--sup2); border-bottom:0; }
+  .tb .o { color:var(--tenue); }
+  .tb b { font-weight:600; }
+  .tb .grande { font-size:1.02rem; }
+  .tb .tipo { display:inline-flex; align-items:center; gap:10px; font-weight:500; }
+  .tb .tipo small { display:block; font-weight:400; color:var(--suave); font-size:.76rem; }
+  .barra-av { position:relative; display:inline-block; width:130px; height:9px; background:var(--linea2); border-radius:5px; overflow:hidden; vertical-align:middle; }
+  .barra-av i { position:absolute; top:0; bottom:0; }
+  .barra-av i.c { left:0; background:var(--ok); }
+  .barra-av i.a { background:var(--curso); }
+  .pild { display:inline-block; min-width:32px; padding:2px 9px; border-radius:999px; font-weight:600; font-size:.84rem; text-align:center; }
+  .pild.ok { background:var(--ok-sua); color:var(--ok); }
+  .pild.curso { background:var(--curso-sua); color:var(--curso); }
+  .pild.sin { background:var(--linea2); color:var(--suave); }
+  .t-nota { font-size:.78rem; color:var(--suave); padding:10px 22px 14px; margin:0; }
+  .t-nota i { display:inline-block; width:10px; height:8px; border-radius:2px; margin:0 4px 0 0; }
+  .t-vacio { padding:4px 22px 20px; color:var(--suave); font-size:.88rem; margin:0; }
+  .cod-btn { border:0; background:none; padding:0; cursor:pointer; color:var(--activo); font-weight:600; font-size:.88rem; }
+  .cod-btn:hover { text-decoration:underline; text-underline-offset:2px; }
+  .forma { width:18px; height:18px; flex:none; }
+
+  /* ---------------- mapa ---------------- */
+  .v-mapa { display:grid; grid-template-columns:minmax(0, 1fr) 390px; gap:18px; padding:20px 28px 24px; }
+  .v-mapa[hidden] { display:none; }
+  .caja-mapa { position:relative; isolation:isolate;height:calc(100vh - 110px); min-height:480px; border-radius:var(--radio); overflow:hidden; box-shadow:var(--sombra); }
+  #mapa { position:absolute; inset:0; background:var(--sup2); }
+  .barra-ctrl {
+    position:absolute; top:12px; left:56px; right:12px; z-index:500; display:flex; flex-wrap:wrap; gap:8px; align-items:center; pointer-events:none;
   }
-  .seg {
-    display:inline-flex; background:var(--sup); border:1px solid var(--linea); border-radius:8px;
-    overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.12);
-  }
-  .seg button { border:0; background:transparent; padding:5px 10px; font-size:.78rem; cursor:pointer; color:var(--suave); }
-  .seg button[aria-pressed="true"] { background:var(--tinta); color:var(--sup); }
+  .barra-ctrl > * { pointer-events:auto; }
+  .buscar { border:1px solid var(--linea); background:var(--sup); border-radius:999px; padding:7px 14px; width:190px; box-shadow:var(--sombra); font-size:.86rem; }
+  .tipos button { display:inline-flex; align-items:center; gap:6px; }
+  .tipos button svg { width:15px; height:15px; }
+  .tipos button[aria-pressed="false"] { opacity:.55; text-decoration:line-through; }
+  .ctrl-der { position:absolute; right:12px; bottom:26px; z-index:500; display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
   .leyenda {
-    position:absolute; left:10px; bottom:22px; z-index:500; background:var(--sup);
-    border:1px solid var(--linea); border-radius:8px; padding:7px 10px; font-size:.76rem;
-    display:grid; gap:3px; box-shadow:0 1px 3px rgba(0,0,0,.12);
+    position:absolute; left:12px; bottom:26px; z-index:500; background:var(--sup); border-radius:10px; padding:9px 12px;
+    font-size:.78rem; display:grid; gap:4px; box-shadow:var(--sombra); max-width:calc(100% - 24px);
   }
-  .leyenda span { display:flex; align-items:center; gap:7px; }
-  .leyenda i { width:10px; height:10px; border-radius:50%; border:1.5px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.25); }
+  .leyenda .ley-fila { display:flex; flex-wrap:wrap; gap:4px 12px; }
+  .leyenda span { display:inline-flex; align-items:center; gap:6px; }
+  .leyenda i { width:10px; height:10px; border-radius:50%; }
+  .leyenda svg { width:15px; height:15px; }
+  .mk { background:none; border:0; }
+  .mk svg { display:block; overflow:visible; filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.45)); }
+  .mk.tenue { opacity:.25; }
   .leaflet-container { font:inherit; }
-  .leaflet-tooltip { font-size:.78rem; }
+  .leaflet-tooltip { font-size:.8rem; }
 
-  /* ---------- panel ---------- */
-  .pestanas { display:flex; border-bottom:1px solid var(--linea); padding:0 6px; flex:none; }
-  .pestana {
-    border:0; background:transparent; padding:11px 10px 9px; cursor:pointer; font-size:.86rem;
-    color:var(--suave); border-bottom:2px solid transparent; margin-bottom:-1px;
-  }
-  .pestana[aria-selected="true"] { color:var(--tinta); border-bottom-color:var(--tinta); font-weight:500; }
-  .pestana .contador {
-    display:inline-block; min-width:18px; padding:0 5px; margin-left:3px; border-radius:9px;
-    background:var(--alerta-sua); color:var(--alerta); font-size:.72rem; text-align:center;
-  }
-  .contenido { overflow:auto; flex:1; padding:14px 16px 18px; }
+  .panel { background:var(--sup); border-radius:var(--radio); box-shadow:var(--sombra); border-top:6px solid var(--f-azul);
+           height:calc(100vh - 110px); min-height:480px; overflow:auto; padding:18px 20px 22px; }
+  .panel h3 { font:500 .9rem/1.2 var(--display); letter-spacing:.06em; text-transform:uppercase; color:var(--suave); margin:20px 0 9px; }
   .vacio { color:var(--suave); font-size:.88rem; margin:0; }
-  h2 { font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--suave);
-       font-weight:600; margin:20px 0 9px; }
-  h2:first-child { margin-top:0; }
-
-  .ubs-cab { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
-  .ubs-cod { font-size:1.35rem; font-weight:500; letter-spacing:-.01em; }
-  .ubs-ben { font-size:.95rem; margin-top:1px; }
-  .ubs-meta { font-size:.8rem; color:var(--suave); margin-top:5px; }
-  .etiqueta { display:inline-block; font-size:.74rem; padding:2px 9px; border-radius:999px; white-space:nowrap; font-weight:500; }
+  .est-cab { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+  .est-cod { font:600 1.7rem/1.05 var(--display); letter-spacing:.01em; }
+  .est-meta { font-size:.82rem; color:var(--suave); margin-top:5px; }
+  .etiqueta { display:inline-block; font-size:.75rem; padding:3px 10px; border-radius:999px; white-space:nowrap; font-weight:600; }
   .etiqueta.sin { background:var(--linea2); color:var(--suave); }
   .etiqueta.curso { background:var(--curso-sua); color:var(--curso); }
   .etiqueta.concluida { background:var(--ok-sua); color:var(--ok); }
-
   .esp { margin-top:14px; }
-  .esp-cab { display:flex; justify-content:space-between; gap:8px; font-size:.84rem; margin-bottom:6px; }
-  .esp-cab b { font-weight:500; }
+  .esp-cab { display:flex; justify-content:space-between; gap:8px; font-size:.85rem; margin-bottom:6px; }
+  .esp-cab b { font-weight:600; }
   .esc { display:flex; gap:2px; }
   .esc span { flex:1; height:16px; border-radius:2px; background:var(--linea2); }
   .esc span.hecha { background:var(--ok); }
   .esc span.curso { background:linear-gradient(to right, var(--curso) calc(var(--f) * 100%), var(--curso-sua) 0); }
-  .esp-pie { font-size:.78rem; color:var(--suave); margin-top:5px; }
-
-  .foto { margin-top:4px; border-radius:8px; overflow:hidden; background:var(--sup2);
-          border:1px solid var(--linea); min-height:60px; }
-  .foto img { display:block; width:100%; height:auto; max-height:340px; object-fit:cover; }
-  .foto .estado-foto { padding:18px 14px; font-size:.84rem; color:var(--suave); }
-  .foto-pie { font-size:.76rem; color:var(--suave); padding:6px 10px 8px; display:flex; justify-content:space-between; gap:8px; }
-  .foto-pie a { color:var(--acento); }
-
+  .esp-pie { font-size:.8rem; color:var(--suave); margin-top:5px; }
+  .foto { border-radius:10px; overflow:hidden; background:var(--sup2); border:1px solid var(--linea); }
+  .foto img { display:block; width:100%; height:auto; max-height:320px; object-fit:cover; }
+  .foto .estado-foto { padding:16px 14px; font-size:.85rem; color:var(--suave); }
+  .foto-pie { font-size:.78rem; color:var(--suave); padding:6px 10px 8px; }
   .hist { list-style:none; margin:0; padding:0; }
   .hist li { position:relative; padding:0 0 13px 18px; border-left:1px solid var(--linea); margin-left:5px; }
   .hist li:last-child { border-left-color:transparent; padding-bottom:0; }
-  .hist li::before { content:""; position:absolute; left:-5px; top:4px; width:9px; height:9px;
-                     border-radius:50%; background:var(--sup); border:2px solid var(--curso); }
+  .hist li::before { content:""; position:absolute; left:-5px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--sup); border:2px solid var(--curso); }
   .hist li.term::before { border-color:var(--ok); background:var(--ok); }
-  .hist .h1 { font-size:.82rem; color:var(--suave); display:flex; flex-wrap:wrap; gap:4px 10px; }
+  .hist .h1 { font-size:.8rem; color:var(--suave); }
   .hist .h2 { font-size:.88rem; margin-top:1px; }
-  .hist .h3 { font-size:.78rem; color:var(--suave); margin-top:3px; display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; }
-  .hist .obs { font-size:.84rem; margin-top:4px; padding:5px 9px; background:var(--sup2); border-radius:6px; border-left:2px solid var(--linea); }
-  .marca-gps { color:var(--alerta); }
-  .visto { color:var(--ok); }
-  .link { border:0; background:none; padding:0; color:var(--acento); cursor:pointer; font-size:.78rem; text-decoration:underline; text-underline-offset:2px; }
-
-  /* resumen */
-  .barras { display:grid; gap:7px; }
-  .barra-fila { display:grid; grid-template-columns:minmax(0, 1fr) 46px; gap:2px 8px; align-items:center; }
-  .barra-fila .bf-et { font-size:.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .barra-fila .bf-et .o { color:var(--tenue); display:inline-block; width:20px; }
-  .barra-fila .bf-val { font-size:.8rem; text-align:right; }
-  .barra-fila .bf-pista { grid-column:1 / -1; height:7px; background:var(--linea2); border-radius:3px; position:relative; overflow:hidden; }
-  .barra-fila .bf-pista i { position:absolute; left:0; top:0; bottom:0; border-radius:3px; }
-  .barra-fila .bf-pista i.a { background:var(--curso-sua); box-shadow:inset 0 0 0 1px var(--curso); }
-  .barra-fila .bf-pista i.c { background:var(--ok); }
-  .nota { font-size:.76rem; color:var(--tenue); margin:8px 0 0; }
-  .leyenda-linea { display:flex; gap:14px; font-size:.76rem; color:var(--suave); margin-bottom:8px; }
-  .leyenda-linea span { display:inline-flex; align-items:center; gap:6px; }
-  .leyenda-linea i { width:12px; height:7px; border-radius:2px; }
-
-  .dias { display:flex; align-items:flex-end; gap:4px; height:92px; padding-top:14px; }
-  .dia { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; min-width:0; }
-  .dia b { font-size:.7rem; font-weight:500; color:var(--suave); }
-  .dia i { width:100%; background:var(--acento); border-radius:2px 2px 0 0; min-height:1px; }
-  .dia i.cero { background:var(--linea); }
-  .dia.hoy i { background:var(--curso); }
-  .dias-et { display:flex; gap:4px; margin-top:4px; }
-  .dias-et span { flex:1; text-align:center; font-size:.66rem; color:var(--tenue); min-width:0; }
-
+  .link { border:0; background:none; padding:0; color:var(--activo); cursor:pointer; font-size:.8rem; text-decoration:underline; text-underline-offset:2px; }
   .actividad { list-style:none; margin:0; padding:0; }
-  .actividad li { display:grid; grid-template-columns:auto 1fr; gap:1px 10px; padding:7px 0; border-top:1px solid var(--linea2); font-size:.82rem; }
+  .actividad li { display:grid; grid-template-columns:auto 1fr; gap:1px 10px; padding:8px 0; border-top:1px solid var(--linea2); font-size:.84rem; }
   .actividad li:first-child { border-top:0; }
-  .actividad .cod { grid-row:1 / span 2; }
-  .actividad .q { color:var(--suave); font-size:.76rem; }
+  .actividad .cod-btn { grid-row:1 / span 2; align-self:start; }
+  .actividad .q { color:var(--suave); font-size:.78rem; }
 
-  /* revisar */
-  .rev { list-style:none; margin:0; padding:0; display:grid; gap:8px; }
-  .rev li { border:1px solid var(--linea); border-left:3px solid var(--alerta); border-radius:8px; padding:8px 10px; }
-  .rev li.leve { border-left-color:var(--curso); }
-  .rev li.nota-campo { border-left-color:var(--azul); }
-  .rev .r1 { display:flex; justify-content:space-between; gap:8px; font-size:.78rem; color:var(--suave); }
-  .rev .r2 { font-size:.85rem; margin-top:3px; }
+  .pie { padding:0 28px 22px; font-size:.76rem; color:var(--tenue); display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 16px; margin-top:auto; }
+  .config { margin:0 0 18px; padding:16px 18px; border:1px solid var(--alerta); background:var(--alerta-sua); border-radius:var(--radio); font-size:.9rem; }
 
-  .cod-btn { border:0; background:none; padding:0; cursor:pointer; color:var(--acento); font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.82rem; font-weight:500; }
-  .cod-btn:hover { text-decoration:underline; text-underline-offset:2px; }
-
+  /* ---------------- celular ---------------- */
+  @media (max-width:860px) {
+    .app { display:block; }
+    .lateral {
+      position:sticky; top:0; z-index:1000; height:auto; padding:0; flex-direction:row; align-items:stretch;
+      overflow-x:auto; box-shadow:0 1px 0 var(--linea);
+    }
+    .marca, .sep, .pie-lat { display:none; }
+    .rapidos { display:contents; }
+    .nav { display:contents; }
+    .nav a, .rapido {
+      flex:1 0 auto; flex-direction:column; gap:4px; padding:9px 10px 8px; font-size:.74rem; border:0; border-radius:0;
+      background:transparent; min-width:68px; justify-content:center; align-items:center;
+    }
+    .rapido { order:2; color:var(--suave); }
+    .nav a .nuevo { display:none; }
+    .cabecera { position:static; padding:10px 16px; }
+    .vista { padding:18px 16px 24px; }
+    h1 { font-size:1.55rem; }
+    .t-cab { padding:14px 16px 10px; }
+    .t-cab h2 { font-size:1.2rem; }
+    .tb th:first-child, .tb td:first-child { padding-left:16px; }
+    .tb th:last-child, .tb td:last-child { padding-right:16px; }
+    .tb th, .tb td { padding:8px 9px; }
+    .barra-av { width:70px; }
+    .frescura { padding:14px 16px; gap:14px; }
+    .v-mapa { display:flex; flex-direction:column; padding:14px 16px 20px; gap:14px; }
+    .caja-mapa { height:62vh; min-height:380px; }
+    .panel { height:auto; min-height:0; }
+    .barra-ctrl { left:52px; flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+    .barra-ctrl > * { flex:none; }
+    .buscar { width:140px; }
+    .t-nota { padding:10px 16px 14px; }
+    .pie { padding:0 16px 18px; }
+  }
   @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
-  /* ---------- propios del sitio público ---------- */
-  .aclaracion { margin:4px 0 0; font-size:.8rem; color:var(--suave); max-width:62ch; }
-  .fila .ben { font-family:"IBM Plex Sans", system-ui, sans-serif; }
-  .pie {
-    padding:0 16px 14px; font-size:.76rem; color:var(--tenue);
-    display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 16px;
-  }
-  @media (min-width:1181px) { .pie { flex:none; } }
-  .config {
-    margin:16px; padding:16px 18px; border:1px solid var(--alerta); background:var(--alerta-sua);
-    border-radius:var(--radio); font-size:.9rem;
-  }
-  .config code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.85em; }
 </style>
 </head>
 <body>
 
-<header class="barra">
-  <div>
-    <p class="obra">Agua potable y saneamiento · Hualgayoc, Cajamarca</p>
-    <h1>Avance de obra · Nuevo San Juan Alto</h1>
-    <p class="aclaracion">Avance físico de las unidades básicas de saneamiento (UBS), tal como se reporta cada día desde campo. No reemplaza la valorización oficial de obra.</p>
-  </div>
-  <div class="sync">
-    <span id="sync" class="sync-estado cargando"><i></i><span id="sync-texto">Cargando datos…</span></span>
-    <button id="btn-actualizar" class="boton" type="button">Actualizar</button>
-  </div>
-</header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-casa" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-5h4v5"/></symbol>
+    <symbol id="i-mapa" viewBox="0 0 24 24"><path d="M9 4 3 6.5v13.5L9 17.5l6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></symbol>
+    <symbol id="i-tabla" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 9.5v10"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.2A8 8 0 1 1 20 12z"/><path d="M9 10.5h6M9 13.5h4"/></symbol>
+    <symbol id="i-excel" viewBox="0 0 24 24"><path d="M14 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3.5V8h4.5M9 12l4 5M13 12l-4 5"/></symbol>
+    <symbol id="i-recarga" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="1.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/><path d="m9.5 15 2 2 3.5-3.5"/></symbol>
+    <symbol id="i-flecha" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+  </defs>
+</svg>
 
-<section class="kpis" id="kpis" aria-label="Indicadores"></section>
-
-<main class="tablero">
-  <aside class="caja lista" aria-label="Lista de UBS">
-    <div class="lista-cab">
-      <input id="buscar" class="buscar" type="search" placeholder="Buscar código, ej. UBS-045" autocomplete="off">
-      <div class="chips" id="chips">
-        <button class="chip" type="button" data-f="todas" aria-pressed="true">Todas</button>
-        <button class="chip" type="button" data-f="curso" aria-pressed="false">En ejecución</button>
-        <button class="chip" type="button" data-f="sin" aria-pressed="false">Sin iniciar</button>
-        <button class="chip" type="button" data-f="detenida" aria-pressed="false">Detenidas</button>
-      </div>
-      <div class="selects">
-        <select id="sistema" aria-label="Sistema"><option value="">Ambos sistemas</option></select>
-        <select id="orden" aria-label="Ordenar">
-          <option value="actividad">Última actividad</option>
-          <option value="avance">Mayor avance</option>
-          <option value="codigo">Código</option>
-        </select>
-      </div>
-      <div class="cuenta" id="cuenta"></div>
+<div class="app">
+  <aside class="lateral">
+    <div class="marca"><b>Avance SJA</b><span>Nuevo San Juan Alto · Hualgayoc</span></div>
+    <div class="rapidos">
+      <button type="button" class="rapido" data-accion="whatsapp" title="Copia el resumen para pegarlo en WhatsApp">
+        <svg class="ic"><use href="#i-chat"/></svg>WhatsApp</button>
+      <button type="button" class="rapido" data-accion="excel" title="Descarga el avance de cada estructura para Excel">
+        <svg class="ic"><use href="#i-excel"/></svg>Excel</button>
     </div>
-    <ul id="lista-ubs"></ul>
+    <div class="sep"></div>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#inicio" data-ir-vista="inicio"><svg class="ic"><use href="#i-casa"/></svg>Inicio</a>
+      <a href="#mapa" data-ir-vista="mapa"><svg class="ic"><use href="#i-mapa"/></svg>Mapa</a>
+      <a href="#detalle" data-ir-vista="detalle"><svg class="ic"><use href="#i-tabla"/></svg>Por estructura</a>
+    </nav>
+    <p class="pie-lat">Avance físico reportado desde campo. No reemplaza la valorización oficial de obra.</p>
   </aside>
 
-  <section class="caja mapa-caja" aria-label="Mapa">
-    <div id="mapa"></div>
-    <div class="mapa-ctrl">
-      <div class="seg" role="group" aria-label="Capa">
-        <button type="button" data-capa="sat" aria-pressed="true">Satélite</button>
-        <button type="button" data-capa="calles" aria-pressed="false">Calles</button>
+  <div class="principal">
+    <header class="cabecera">
+      <span class="obra">Agua potable y saneamiento · Hualgayoc, Cajamarca</span>
+      <div class="der">
+        <span id="sync" class="sync-estado cargando"><i></i><span id="sync-texto">Cargando datos…</span></span>
+        <button id="btn-actualizar" class="pastilla" type="button"><svg class="ic"><use href="#i-recarga"/></svg>Actualizar</button>
       </div>
-      <div class="seg" role="group" aria-label="Color de los puntos">
-        <button type="button" data-color="estado" aria-pressed="true">Estado</button>
-        <button type="button" data-color="dias" aria-pressed="false">Días sin registro</button>
+    </header>
+
+    <!-- ========== INICIO: el resumen en tablas, lo primero que se ve ========== -->
+    <main id="v-inicio" class="vista" aria-labelledby="tit-inicio">
+      <div class="fila-tit">
+        <div>
+          <h1 id="tit-inicio">Avance de obra · Nuevo San Juan Alto</h1>
+          <p class="aclaracion">UBS, cámaras rompe presión tipo 7 y válvulas, tal como se reportan cada día desde campo.</p>
+        </div>
+        <div class="seg seg-sis" role="group" aria-label="Sistema"></div>
       </div>
-    </div>
-    <div class="leyenda" id="leyenda"></div>
-  </section>
+      <div id="inicio-cuerpo"></div>
+    </main>
 
-  <section class="caja panel" aria-label="Detalle">
-    <div class="pestanas" role="tablist">
-      <button class="pestana" role="tab" type="button" data-tab="ubs" aria-selected="true">UBS</button>
-      <button class="pestana" role="tab" type="button" data-tab="resumen" aria-selected="false">Resumen de obra</button>
-    </div>
-    <div class="contenido" id="contenido"></div>
-  </section>
-</main>
+    <!-- ========== MAPA ========== -->
+    <section id="v-mapa" class="v-mapa" aria-label="Mapa de estructuras" hidden>
+      <div class="caja-mapa">
+        <div id="mapa"></div>
+        <div class="barra-ctrl">
+          <input id="buscar" class="buscar" type="search" placeholder="Buscar: UBS-045, CRP7-012…" autocomplete="off" list="codigos">
+          <datalist id="codigos"></datalist>
+          <div class="seg tipos" role="group" aria-label="Tipos visibles" id="seg-tipos"></div>
+          <div class="seg seg-sis" role="group" aria-label="Sistema"></div>
+          <div class="seg" role="group" aria-label="Filtro de estado" id="seg-estado">
+            <button type="button" data-estado="todas" aria-pressed="true">Todas</button>
+            <button type="button" data-estado="curso" aria-pressed="false">En ejecución</button>
+            <button type="button" data-estado="sin" aria-pressed="false">Sin iniciar</button>
+            <button type="button" data-estado="detenida" aria-pressed="false">Detenidas</button>
+          </div>
+        </div>
+        <div class="ctrl-der">
+          <div class="seg" role="group" aria-label="Color">
+            <button type="button" data-color="estado" aria-pressed="true">Estado</button>
+            <button type="button" data-color="dias" aria-pressed="false">Días sin registro</button>
+          </div>
+          <div class="seg" role="group" aria-label="Fondo">
+            <button type="button" data-capa="sat" aria-pressed="true">Satélite</button>
+            <button type="button" data-capa="calles" aria-pressed="false">Calles</button>
+          </div>
+        </div>
+        <div class="leyenda" id="leyenda"></div>
+      </div>
+      <aside class="panel" id="panel" aria-label="Detalle de la estructura"></aside>
+    </section>
 
-<footer class="pie">
-  <span>Fuente: registros diarios de campo · se actualiza cada minuto</span>
-  <span id="generado"></span>
-</footer>
+    <!-- ========== POR ESTRUCTURA ========== -->
+    <section id="v-detalle" class="vista" aria-labelledby="tit-detalle" hidden>
+      <div class="fila-tit">
+        <div>
+          <h1 id="tit-detalle">Dónde está cada estructura</h1>
+          <p class="aclaracion">De la más adelantada a la que no empieza. Toca un código para verla en el mapa.</p>
+        </div>
+        <div class="seg seg-sis" role="group" aria-label="Sistema"></div>
+      </div>
+      <div id="detalle-cuerpo"></div>
+    </section>
+
+    <footer class="pie">
+      <span>Fuente: registros diarios de campo · se actualiza cada minuto</span>
+      <span id="generado"></span>
+    </footer>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
@@ -357,11 +401,18 @@ var API_URL = 'https://script.google.com/macros/s/AKfycbxPIB-jejwCHHuZBf8FHyQnHo
   'use strict';
 
   var REFRESCO_MS = 60000;
+  // Tres familias en el mapa, cada una con su forma.
+  var FAMILIAS = [
+    { clave: 'UBS', nombre: 'UBS', forma: 'casa', franja: '--f-verde' },
+    { clave: 'CRP', nombre: 'CRP-7', forma: 'cubo', franja: '--f-azul' },
+    { clave: 'VAL', nombre: 'Válvulas', forma: 'tri', franja: '--f-rojo' }
+  ];
   var S = {
-    d: null, porId: {}, regsPorUbs: {}, regPorId: {}, sel: null,
-    filtro: 'todas', texto: '', sistema: '', orden: 'actividad',
-    colorPor: 'estado', tab: 'ubs', fotoVista: null,
-    cargando: false, ultimo: 0, primera: true
+    d: null, grupos: [], items: [], porId: {}, regsPor: {}, regPorId: {},
+    vista: 'inicio', sis: '', espUbs: '', valTipo: '', detGrupo: 'UBS', detEsp: '',
+    sel: null, fotoVista: null, tiposVis: { UBS: true, CRP: true, VAL: true },
+    filtro: 'todas', texto: '', colorPor: 'estado',
+    cargando: false, ultimo: 0, mapaAjustado: false
   };
 
   function $(id) { return document.getElementById(id); }
@@ -372,7 +423,6 @@ var API_URL = 'https://script.google.com/macros/s/AKfycbxPIB-jejwCHHuZBf8FHyQnHo
   }
   function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
   function pct(x, dec) { return x == null ? '—' : (x * 100).toFixed(dec == null ? 1 : dec) + '%'; }
-  function fCorta(iso) { return iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) : '—'; }
   function fLarga(iso) { return iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '—'; }
   function hace(n) {
     if (n == null) { return 'sin registros'; }
@@ -380,10 +430,13 @@ var API_URL = 'https://script.google.com/macros/s/AKfycbxPIB-jejwCHHuZBf8FHyQnHo
     if (n === 1) { return 'ayer'; }
     return 'hace ' + n + ' días';
   }
-  function haceCorto(n) { return n == null ? '' : n <= 0 ? 'hoy' : n === 1 ? 'ayer' : n + ' d'; }
   function cmp(a, b) { return a < b ? -1 : a > b ? 1 : 0; }
-
-  var SIGLAS = { PVC: 1, SAL: 1, BIO: 1, UBS: 1 };
+  function cuenta(arr, f) { var n = 0; arr.forEach(function (x) { if (f(x)) { n++; } }); return n; }
+  function diasEntre(a, b) {
+    var pa = a.split('-'), pb = b.split('-');
+    return Math.round((Date.UTC(+pb[0], pb[1] - 1, +pb[2]) - Date.UTC(+pa[0], pa[1] - 1, +pa[2])) / 864e5);
+  }
+  var SIGLAS = { PVC: 1, SAL: 1, BIO: 1, UBS: 1, CRP: 1 };
   function oracion(t) {
     if (!t) { return ''; }
     var s = String(t).split(' ').map(function (w) {
@@ -394,12 +447,23 @@ var API_URL = 'https://script.google.com/macros/s/AKfycbxPIB-jejwCHHuZBf8FHyQnHo
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
+  // ---------------------------------------------------------- símbolos --
+  function svgForma(forma, relleno, borde, ancho, tam) {
+    var t = tam || 22, sw = ancho || 1.6;
+    var p = forma === 'casa' ? '<path d="M12 2.5 22 11h-2.5v10.5h-15V11H2z"'
+          : forma === 'cubo' ? '<rect x="4" y="4" width="16" height="16" rx="1.5"'
+          : '<path d="M12 3 22 20.5H2z"';
+    return '<svg width="' + t + '" height="' + t + '" viewBox="0 0 24 24">' + p +
+           ' fill="' + relleno + '" stroke="' + borde + '" stroke-width="' + sw + '" stroke-linejoin="round"/></svg>';
+  }
+  function iconoFamilia(clave, color) {
+    var f = FAMILIAS.filter(function (x) { return x.clave === clave; })[0];
+    return svgForma(f.forma, color || 'currentColor', 'none', 0, 16).replace('<svg ', '<svg class="forma" ');
+  }
+
   // ------------------------------------------------------------- datos --
   function pedir() {
     if (window.__API_SIMULADA__) { return window.__API_SIMULADA__(); }
-    if (!API_URL || API_URL.indexOf('PEGA_AQUI') === 0) {
-      return Promise.reject(new Error('falta configurar API_URL'));
-    }
     return fetch(API_URL, { cache: 'no-store' }).then(function (r) {
       if (!r.ok) { throw new Error('el servidor respondió ' + r.status); }
       return r.json();
@@ -412,359 +476,593 @@ var API_URL = 'https://script.google.com/macros/s/AKfycbxPIB-jejwCHHuZBf8FHyQnHo
     $('btn-actualizar').disabled = true;
     marcarSync('cargando', S.d ? 'Actualizando…' : 'Cargando datos…');
     pedir().then(function (d) {
-      S.d = d;
-      S.ultimo = Date.now();
+      S.d = d; S.ultimo = Date.now();
       indexar();
-      if (S.primera && !S.sel && d.registros[0]) { S.sel = d.registros[0].ubs; }
       pintarTodo();
-      S.primera = false;
       var t = new Date();
       marcarSync('ok', 'Actualizado ' + ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2));
       $('generado').textContent = 'Datos al ' + fLarga(d.generado) + ' ' + d.generado.slice(11, 16);
     }).catch(function (e) {
-      var msg = e && e.message ? e.message : String(e);
       marcarSync('error', 'No se pudo actualizar' + (S.d ? ' · se muestra lo último cargado' : ''));
-      if (!S.d && msg.indexOf('API_URL') !== -1) {
-        $('contenido').innerHTML = '<div class="config">Falta un paso: abre <code>index.html</code> y pega en ' +
-          '<code>API_URL</code> la dirección de tu API pública (la que termina en <code>/exec</code>).</div>';
-      }
+      if (!S.d) { $('inicio-cuerpo').innerHTML = '<div class="config">No se pudo leer la API: ' + esc(e && e.message || e) + '</div>'; }
     }).then(function () {
       S.cargando = false;
       $('btn-actualizar').disabled = false;
     });
   }
+  function marcarSync(clase, texto) { $('sync').className = 'sync-estado ' + clase; $('sync-texto').textContent = texto; }
 
-  function marcarSync(clase, texto) {
-    $('sync').className = 'sync-estado ' + clase;
-    $('sync-texto').textContent = texto;
-  }
-
+  // Todo se vuelve "grupos": las UBS y cada tipo de "otros" (CRP-7, válvulas).
   function indexar() {
-    S.porId = {}; S.regsPorUbs = {}; S.regPorId = {};
-    S.d.ubs.forEach(function (u) { S.porId[u.id] = u; });
-    S.d.registros.forEach(function (r) {
-      S.regPorId[r.id] = r;
-      (S.regsPorUbs[r.ubs] = S.regsPorUbs[r.ubs] || []).push(r);
+    var d = S.d;
+    S.grupos = [{ tipo: 'UBS', grupo: 'UBS', corto: 'UBS', principal: d.principal, fases: d.fases,
+                  especialidades: d.especialidades, items: d.ubs, registros: d.registros }]
+      .concat(d.otros || []);
+    S.items = []; S.porId = {}; S.regsPor = {}; S.regPorId = {};
+    S.grupos.forEach(function (g) {
+      g.items.forEach(function (u) { u.g = g; S.items.push(u); S.porId[u.id] = u; });
+      g.registros.forEach(function (r) {
+        r.g = g; S.regPorId[r.id] = r;
+        (S.regsPor[r.ubs] = S.regsPor[r.ubs] || []).push(r);
+      });
     });
     if (S.sel && !S.porId[S.sel]) { S.sel = null; }
+    if (!S.valTipo || !grupoTipo(S.valTipo)) {
+      var vals = S.grupos.filter(function (g) { return g.grupo === 'VAL'; });
+      var activo = vals.filter(function (g) { return g.registros.length; })[0] || vals[0];
+      S.valTipo = activo ? activo.tipo : '';
+    }
+    var lista = '';
+    S.items.forEach(function (u) { if (u.lat != null) { lista += '<option value="' + esc(u.codigo) + '">'; } });
+    $('codigos').innerHTML = lista;
+  }
+  function grupoTipo(tipo) { return S.grupos.filter(function (g) { return g.tipo === tipo; })[0]; }
+  function enSistema(u) { return !S.sis || u.sector === S.sis; }
+  function sistemas() {
+    var v = {};
+    S.items.forEach(function (u) { if (u.sector) { v[u.sector] = 1; } });
+    return Object.keys(v).sort();
+  }
+  function ultimoCampo() {
+    var f = null;
+    S.grupos.forEach(function (g) { g.registros.forEach(function (r) { if (r.fecha && (!f || r.fecha > f)) { f = r.fecha; } }); });
+    return f ? { fecha: f, dias: diasEntre(f, S.d.hoy) } : null;
   }
 
-  function pintarTodo() { pintarKpis(); pintarSistemas(); pintarLista(); pintarMapa(); pintarPanel(); }
-
-  // ---------------------------------------------------------- indicadores --
-  function pintarKpis() {
-    var k = S.d.kpi;
-    $('kpis').innerHTML =
-      kpi('Avance del módulo', pct(k.avancePrincipal), S.d.escalera.length + ' fases · ' + k.total + ' UBS', k.avancePrincipal) +
-      kpi('UBS iniciadas', k.iniciadas + ' <small>de ' + k.total + '</small>', 'ya tienen al menos una fase', k.total ? k.iniciadas / k.total : 0) +
-      kpi('Módulos concluidos', k.principalConcluidas + ' <small>de ' + k.total + '</small>', 'las ' + S.d.escalera.length + ' fases cerradas', null) +
-      kpi('Con trabajo esta semana', k.activas7 + ' <small>UBS</small>', 'con avance en los últimos 7 días', null) +
-      kpi('Registros de campo', k.registros, k.registrosHoy + ' hoy · ' + k.registros7 + ' en 7 días', null);
-  }
-  function kpi(et, val, sub, frac) {
-    return '<div class="kpi"><div class="et">' + esc(et) + '</div>' +
-      '<div class="val num">' + val + '</div><div class="sub">' + esc(sub) + '</div>' +
-      (frac != null ? '<div class="barrita"><i style="width:' + Math.min(100, frac * 100) + '%"></i></div>' : '') +
-      '</div>';
-  }
-
-  function pintarSistemas() {
-    var sel = $('sistema'), actual = sel.value;
-    var opts = '<option value="">Ambos sistemas</option>';
-    S.d.porSistema.forEach(function (s) {
-      opts += '<option value="' + esc(s.sector) + '">' + esc(s.sector) + ' (' + s.total + ')</option>';
+  // Cuántas estructuras van en cada fase (se construye en orden).
+  function faseTabla(g, esp) {
+    var items = g.items.filter(enSistema);
+    var filas = g.fases.filter(function (f) { return f.esp === esp; }).map(function (f) {
+      var term = 0, proc = 0;
+      items.forEach(function (u) {
+        var st = u.esp[esp];
+        if (!st) { return; }
+        if (st.cerradas >= f.orden) { term++; } else if (st.max === f.orden && st.frac < 1) { proc++; }
+      });
+      return { orden: f.orden, nombre: f.nombre, term: term, proc: proc, total: term + proc };
     });
-    sel.innerHTML = opts;
-    sel.value = actual;
+    return { n: items.length, filas: filas, sinIniciar: cuenta(items, function (u) { return !u.esp[esp] || !u.esp[esp].max; }) };
+  }
+  function resumenGrupo(g) {
+    var items = g.items.filter(enSistema), n = items.length, s = 0;
+    items.forEach(function (u) { s += u.avance || 0; });
+    return {
+      n: n, sin: cuenta(items, function (u) { return u.estado === 'sin'; }),
+      curso: cuenta(items, function (u) { return u.estado === 'curso'; }),
+      conc: cuenta(items, function (u) { return u.estado === 'concluida'; }),
+      avance: n ? s / n : 0,
+      ultima: items.reduce(function (m, u) { return u.ultima && (!m || u.ultima > m) ? u.ultima : m; }, null)
+    };
   }
 
-  // --------------------------------------------------------------- lista --
-  function colorEstado(u) {
-    if (u.estado === 'sin') { return css('--sin'); }
-    if (u.avance >= 1) { return css('--ok'); }
-    return css('--curso');
+  function pintarTodo() {
+    pintarSegSis();
+    if (S.vista === 'inicio') { pintarInicio(); }
+    if (S.vista === 'detalle') { pintarDetalle(); }
+    pintarTiposMapa();
+    pintarMapa();
+    pintarPanel();
   }
-  function colorDias(u) {
-    if (u.diasSin == null) { return css('--sin'); }
-    if (u.avance >= 1) { return css('--azul'); }
-    if (u.diasSin <= 1) { return css('--ok'); }
-    if (u.diasSin <= 3) { return css('--curso'); }
-    return css('--alerta');
-  }
-  function colorUbs(u) { return S.colorPor === 'dias' ? colorDias(u) : colorEstado(u); }
 
-  function filtradas() {
-    var t = S.texto.toLowerCase();
-    var arr = S.d.ubs.filter(function (u) {
-      if (S.sistema && u.sector !== S.sistema) { return false; }
-      if (S.filtro === 'curso' && u.estado !== 'curso') { return false; }
-      if (S.filtro === 'sin' && u.estado !== 'sin') { return false; }
-      if (S.filtro === 'detenida' && !(u.estado === 'curso' && u.diasSin != null && u.diasSin >= 4)) { return false; }
-      if (t && u.codigo.toLowerCase().indexOf(t) === -1) { return false; }
-      return true;
+  function pintarSegSis() {
+    var ops = [['', 'Ambos sistemas']].concat(sistemas().map(function (s) { return [s, s]; }));
+    var html = ops.map(function (o) {
+      return '<button type="button" data-sis="' + esc(o[0]) + '" aria-pressed="' + (o[0] === S.sis) + '">' + esc(o[1]) + '</button>';
+    }).join('');
+    document.querySelectorAll('.seg-sis').forEach(function (el) { el.innerHTML = html; });
+  }
+
+  // ------------------------------------------------------------ INICIO --
+  function pintarInicio() {
+    var d = S.d, u = ultimoCampo(), h = '';
+    var viejo = u && u.dias >= 3;
+    h += '<div class="tarjeta borde"><div class="frescura' + (viejo || !u ? ' viejo' : '') + '">' +
+      '<span class="medalla"><svg class="ic"><use href="#i-cal"/></svg></span><div>' +
+      '<div class="et">Último registro de campo</div><div class="tx">' +
+      (u ? '<b>' + fLarga(u.fecha) + ' · ' + hace(u.dias) + '</b>' + (viejo ? ' — los números pueden estar atrasados.' : '') :
+           '<b>Todavía no hay registros.</b>') +
+      ' Datos leídos el ' + fLarga(d.generado) + ' a las ' + d.generado.slice(11, 16) + '.</div></div></div></div>';
+
+    // ---- resumen general ----
+    h += '<section class="tarjeta" style="--franja:var(--f-amarillo)"><div class="t-cab"><div><h2>Resumen general</h2>' +
+      '<p>' + esc(S.sis || 'Ambos sistemas') + ' · cuántas hay, cuántas empezaron y cuántas terminaron</p></div>' +
+      '<div class="t-acc"><button type="button" class="mini-boton" data-accion="copiar-resumen">Copiar tabla</button></div></div>' +
+      '<div class="t-scroll"><table class="tb"><thead><tr><th class="izq">Estructura</th><th>Total</th><th>Sin iniciar</th>' +
+      '<th>En ejecución</th><th>Concluidas</th><th>Avance</th><th class="izq"></th><th>Último registro</th></tr></thead><tbody>';
+    filasResumen().forEach(function (f) {
+      if (!f.r) {
+        h += '<tr class="cero"><td class="izq"><span class="tipo">' + iconoFamilia(f.fam, css('--sin')) + esc(f.nombre) + '</span></td>' +
+             '<td colspan="7" class="izq">Falta publicar la nueva versión de la API para ver este dato.</td></tr>';
+        return;
+      }
+      var r = f.r, pc = r.n ? r.conc / r.n * 100 : 0, pa = r.n ? r.curso / r.n * 100 : 0;
+      h += '<tr' + (r.sin === r.n ? ' class="cero"' : '') + '><td class="izq"><span class="tipo">' + iconoFamilia(f.fam, css(fam(f.fam).franja)) +
+        '<span>' + esc(f.nombre) + (f.sub ? '<small>' + esc(f.sub) + '</small>' : '') + '</span></span></td>' +
+        '<td class="num grande"><b>' + r.n + '</b></td>' +
+        '<td class="num"><span class="pild sin">' + r.sin + '</span></td>' +
+        '<td class="num"><span class="pild curso">' + r.curso + '</span></td>' +
+        '<td class="num"><span class="pild ok">' + r.conc + '</span></td>' +
+        '<td class="num"><b>' + pct(r.avance) + '</b></td>' +
+        '<td class="izq"><span class="barra-av" aria-hidden="true"><i class="c" style="width:' + pc + '%"></i><i class="a" style="left:' + pc + '%;width:' + pa + '%"></i></span></td>' +
+        '<td class="num">' + (r.ultima ? fLarga(r.ultima) : '—') + '</td></tr>';
     });
-    arr.sort(function (a, b) {
-      if (S.orden === 'avance') { return (b.avance - a.avance) || cmp(a.codigo, b.codigo); }
-      if (S.orden === 'codigo') { return cmp(a.codigo, b.codigo); }
-      return cmp(b.ultima || '', a.ultima || '') || cmp(a.codigo, b.codigo);
+    h += '</tbody></table></div><p class="t-nota"><i style="background:var(--ok)"></i>Concluidas <i style="background:var(--curso);margin-left:8px"></i>En ejecución. ' +
+      'Avance = promedio de las fases cerradas, contando también las que no empiezan. En las UBS es el avance del módulo; ' +
+      'una UBS está concluida cuando terminó módulo, tratamiento y lavadero.</p></section>';
+
+    // ---- UBS fase por fase ----
+    var gU = S.grupos[0];
+    var espU = gU.especialidades.some(function (e) { return e.nombre === S.espUbs; }) ? S.espUbs : gU.principal;
+    h += tarjetaFases(gU, espU, {
+      titulo: 'UBS · fase por fase', franja: '--f-verde', mas: '#detalle', masTxt: 'Ver cada UBS',
+      selector: '<select data-sel="espUbs" aria-label="Especialidad">' + gU.especialidades.map(function (e) {
+        return '<option value="' + esc(e.nombre) + '"' + (e.nombre === espU ? ' selected' : '') + '>' + esc(oracion(e.nombre)) + '</option>';
+      }).join('') + '</select>', unidad: 'UBS'
     });
-    return arr;
+
+    // ---- CRP-7 y válvulas ----
+    var gC = grupoTipo('CAMARA ROMPE PRESION T7'), gV = grupoTipo(S.valTipo);
+    h += '<div class="rejilla">';
+    h += gC ? tarjetaFases(gC, gC.principal, { titulo: 'CRP-7 · fase por fase', franja: '--f-azul', mas: '#mapa', masTxt: 'Ver en el mapa', unidad: 'CRP' })
+            : tarjetaPendiente('CRP-7 · fase por fase', '--f-azul');
+    if (gV) {
+      var vals = S.grupos.filter(function (g) { return g.grupo === 'VAL'; });
+      h += tarjetaFases(gV, gV.principal, {
+        titulo: 'Válvulas · fase por fase', franja: '--f-rojo', mas: '#mapa', masTxt: 'Ver en el mapa', unidad: 'válvulas',
+        selector: '<select data-sel="valTipo" aria-label="Tipo de válvula">' + vals.map(function (g) {
+          return '<option value="' + esc(g.tipo) + '"' + (g.tipo === gV.tipo ? ' selected' : '') + '>' +
+                 esc(g.corto) + ' (' + g.items.filter(enSistema).length + ')</option>';
+        }).join('') + '</select>'
+      });
+    } else { h += tarjetaPendiente('Válvulas · fase por fase', '--f-rojo'); }
+    h += '</div>';
+    $('inicio-cuerpo').innerHTML = h;
   }
 
-  function pintarLista() {
-    var arr = filtradas();
-    $('cuenta').textContent = arr.length + ' de ' + S.d.ubs.length + ' UBS';
-    var html = '';
-    arr.forEach(function (u) {
-      html += '<li><button type="button" class="fila" data-id="' + esc(u.id) + '"' +
-        (u.id === S.sel ? ' aria-current="true"' : '') + '>' +
-        '<span class="punto" style="background:' + colorUbs(u) + '"></span>' +
-        '<span class="cod mono">' + esc(u.codigo) + '</span>' +
-        '<span class="ben">' + esc(u.sector) + '</span>' +
-        '<span class="pct num">' + (u.estado === 'sin' ? '—' : pct(u.avance, 0)) + '</span>' +
-        '<span class="mini"><i style="width:' + (u.avance * 100) + '%"></i></span>' +
-        '<span class="cuando">' + haceCorto(u.diasSin) + '</span>' +
-        '</button></li>';
+  function fam(clave) { return FAMILIAS.filter(function (f) { return f.clave === clave; })[0]; }
+  function filasResumen() {
+    var out = [{ fam: 'UBS', nombre: 'UBS', sub: 'Unidades básicas de saneamiento', r: resumenGrupo(S.grupos[0]) }];
+    var c = grupoTipo('CAMARA ROMPE PRESION T7');
+    out.push({ fam: 'CRP', nombre: 'CRP-7', sub: 'Cámaras rompe presión tipo 7', r: c ? resumenGrupo(c) : null });
+    var vals = S.grupos.filter(function (g) { return g.grupo === 'VAL'; });
+    if (vals.length) { vals.forEach(function (g) { out.push({ fam: 'VAL', nombre: g.corto, r: resumenGrupo(g) }); }); }
+    else { out.push({ fam: 'VAL', nombre: 'Válvulas', r: null }); }
+    return out;
+  }
+  function tarjetaPendiente(titulo, franja) {
+    return '<section class="tarjeta" style="--franja:var(' + franja + ')"><div class="t-cab"><h2>' + esc(titulo) + '</h2></div>' +
+      '<p class="t-vacio">Falta publicar la nueva versión de la API para ver este dato.</p></section>';
+  }
+  function tarjetaFases(g, esp, o) {
+    var t = faseTabla(g, esp), h = '';
+    h += '<section class="tarjeta" style="--franja:var(' + o.franja + ')"><div class="t-cab"><div><h2>' + esc(o.titulo) + '</h2>' +
+      '<p>' + esc(S.sis || 'Ambos sistemas') + ' · ' + t.n + ' ' + esc(o.unidad) + ' · ' + (t.n - t.sinIniciar) + ' iniciadas</p></div>' +
+      '<div class="t-acc">' + (o.selector || '') +
+      '<button type="button" class="mini-boton" data-accion="copiar-fases" data-tipo="' + esc(g.tipo) + '" data-esp="' + esc(esp) + '">Copiar</button>' +
+      '<a class="ver-mas" href="' + o.mas + '"' + (o.mas === '#mapa' ? ' data-solo="' + esc(g.grupo) + '"' : '') + '>' + esc(o.masTxt) +
+      '<svg class="ic"><use href="#i-flecha"/></svg></a></div></div>';
+    h += '<div class="t-scroll"><table class="tb"><thead><tr><th class="izq">N°</th><th class="izq">Fase</th>' +
+      '<th>Terminada</th><th>En proceso</th><th>Total</th><th>Faltan</th><th class="izq"></th></tr></thead><tbody>';
+    t.filas.forEach(function (f) {
+      var pT = t.n ? f.term / t.n * 100 : 0, pP = t.n ? f.proc / t.n * 100 : 0;
+      h += '<tr' + (f.total ? '' : ' class="cero"') + '><td class="izq o num">' + f.orden + '</td>' +
+        '<td class="izq fase">' + esc(oracion(f.nombre)) + '</td>' +
+        '<td class="num">' + f.term + '</td><td class="num">' + f.proc + '</td><td class="num"><b>' + f.total + '</b></td>' +
+        '<td class="num">' + (t.n - f.total) + '</td>' +
+        '<td class="izq"><span class="barra-av" aria-hidden="true"><i class="c" style="width:' + pT + '%"></i>' +
+        '<i class="a" style="left:' + pT + '%;width:' + pP + '%"></i></span></td></tr>';
     });
-    $('lista-ubs').innerHTML = html || '<li class="vacio" style="padding:14px 12px">Ninguna UBS calza con el filtro.</li>';
+    h += '</tbody><tfoot><tr><td class="izq"></td><td class="izq">Sin iniciar</td><td></td><td></td><td class="num">' + t.sinIniciar +
+      '</td><td></td><td></td></tr></tfoot></table></div>' +
+      '<p class="t-nota"><b>Terminada</b>: la fase está cerrada o ya va en una posterior. <b>En proceso</b>: es la fase actual y aún no se cierra.</p></section>';
+    return h;
   }
 
-  // ---------------------------------------------------------------- mapa --
+  // --------------------------------------------------------- DETALLE --
+  function pintarDetalle() {
+    var fams = FAMILIAS.filter(function (f) { return S.grupos.some(function (g) { return g.grupo === f.clave; }); });
+    if (!fams.some(function (f) { return f.clave === S.detGrupo; })) { S.detGrupo = 'UBS'; }
+    var gs = S.grupos.filter(function (g) { return g.grupo === S.detGrupo; });
+    var esps = gs[0].especialidades;
+    var esp = S.detGrupo === 'UBS' ? (esps.some(function (e) { return e.nombre === S.detEsp; }) ? S.detEsp : gs[0].principal) : null;
+    var filas = filasDetalleDe(gs, esp);
+    var f = fam(S.detGrupo), h = '';
+    h += '<section class="tarjeta" style="--franja:var(' + f.franja + ')"><div class="t-cab"><div>' +
+      '<div class="seg" role="group" aria-label="Tipo" style="box-shadow:none">' + fams.map(function (x) {
+        return '<button type="button" data-det="' + x.clave + '" aria-pressed="' + (x.clave === S.detGrupo) + '">' + esc(x.nombre) + '</button>';
+      }).join('') + '</div><p>' + esc(S.sis || 'Ambos sistemas') + ' · ' + filas.length + ' estructuras</p></div><div class="t-acc">' +
+      (esp != null ? '<select data-sel="detEsp" aria-label="Especialidad">' + esps.map(function (e) {
+        return '<option value="' + esc(e.nombre) + '"' + (e.nombre === esp ? ' selected' : '') + '>' + esc(oracion(e.nombre)) + '</option>';
+      }).join('') + '</select>' : '') +
+      '<button type="button" class="mini-boton" data-accion="copiar-detalle">Copiar tabla</button>' +
+      '<button type="button" class="mini-boton" data-accion="excel">Descargar para Excel</button></div></div>';
+    h += '<div class="t-scroll"><table class="tb"><thead><tr><th class="izq">Código</th>' + (gs.length > 1 ? '<th class="izq">Tipo</th>' : '') +
+      '<th class="izq">Sistema</th><th class="izq">Fase actual</th><th>% de la fase</th><th>Fases cerradas</th><th>Avance</th>' +
+      '<th>Último registro</th><th>Días sin registro</th></tr></thead><tbody>';
+    filas.forEach(function (x) {
+      h += '<tr' + (x.st.max ? '' : ' class="cero"') + '>' +
+        '<td class="izq"><button type="button" class="cod-btn" data-ver="' + esc(x.u.id) + '">' + esc(x.u.codigo) + '</button></td>' +
+        (gs.length > 1 ? '<td class="izq">' + esc(x.u.g.corto) + '</td>' : '') +
+        '<td class="izq">' + esc(x.u.sector) + '</td>' +
+        '<td class="izq fase">' + (x.st.max ? '<span class="o num">' + x.st.max + '.</span> ' + esc(oracion(x.st.fase)) : 'Sin iniciar') + '</td>' +
+        '<td class="num">' + (x.st.max ? pct(x.st.frac, 0) : '—') + '</td>' +
+        '<td class="num">' + x.st.cerradas + ' de ' + x.st.total + '</td>' +
+        '<td class="num"><b>' + pct(x.st.avance, 0) + '</b></td>' +
+        '<td class="num">' + (x.u.ultima ? fLarga(x.u.ultima) : '—') + '</td>' +
+        '<td class="num">' + (x.u.diasSin == null ? '—' : x.u.diasSin) + '</td></tr>';
+    });
+    $('detalle-cuerpo').innerHTML = h + '</tbody></table></div></section>';
+  }
+  function filasDetalleDe(gs, esp) {
+    var out = [];
+    gs.forEach(function (g) {
+      var e = esp != null ? esp : g.principal;
+      g.items.filter(enSistema).forEach(function (u) {
+        out.push({ u: u, esp: e, st: u.esp[e] || { max: 0, frac: 0, cerradas: 0, total: 0, avance: 0, fase: '' } });
+      });
+    });
+    return out.sort(function (a, b) {
+      return (b.st.avance - a.st.avance) || (b.st.max - a.st.max) || cmp(a.u.codigo, b.u.codigo);
+    });
+  }
+
+  // ------------------------------------------------------------- MAPA --
   var mapa = L.map('mapa', { zoomControl: true, attributionControl: true });
-  mapa.setView([-6.785, -78.562], 15);
+  mapa.setView([-6.785, -78.565], 15);
   var capas = {
     sat: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      { maxZoom: 20, maxNativeZoom: 18, attribution: 'Imágenes © Esri' }),
+      { maxZoom: 20, maxNativeZoom: 17, attribution: 'Imágenes © Esri' }),
     calles: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       { maxZoom: 20, maxNativeZoom: 19, attribution: '© OpenStreetMap' })
   };
   capas.sat.addTo(mapa);
-  var capaUbs = L.layerGroup().addTo(mapa);
+  var capaEst = L.layerGroup().addTo(mapa);
+
+  function colorEstado(u) {
+    if (u.estado === 'sin') { return css('--sin'); }
+    if (u.estado === 'concluida') { return css('--ok'); }
+    return css('--curso');
+  }
+  function colorDias(u) {
+    if (u.diasSin == null || u.estado === 'sin') { return css('--sin'); }
+    if (u.estado === 'concluida') { return css('--azul'); }
+    if (u.diasSin <= 1) { return css('--ok'); }
+    if (u.diasSin <= 3) { return css('--curso'); }
+    return css('--alerta');
+  }
+  function colorDe(u) { return S.colorPor === 'dias' ? colorDias(u) : colorEstado(u); }
+  function pasaFiltro(u) {
+    if (!enSistema(u)) { return false; }
+    if (S.filtro === 'curso' && u.estado !== 'curso') { return false; }
+    if (S.filtro === 'sin' && u.estado !== 'sin') { return false; }
+    if (S.filtro === 'detenida' && !(u.estado === 'curso' && u.diasSin != null && u.diasSin >= 4)) { return false; }
+    if (S.texto && u.codigo.toLowerCase().indexOf(S.texto.toLowerCase()) === -1) { return false; }
+    return true;
+  }
+
+  function pintarTiposMapa() {
+    $('seg-tipos').innerHTML = FAMILIAS.map(function (f) {
+      var n = cuenta(S.items, function (u) { return u.g.grupo === f.clave; });
+      return '<button type="button" data-tipo="' + f.clave + '" aria-pressed="' + !!S.tiposVis[f.clave] + '"' + (n ? '' : ' disabled') + '>' +
+        svgForma(f.forma, 'currentColor', 'none', 0, 15) + esc(f.nombre) + '</button>';
+    }).join('');
+  }
 
   function pintarMapa() {
-    capaUbs.clearLayers();
-    var visibles = {};
-    filtradas().forEach(function (u) { visibles[u.id] = true; });
+    if (!S.d) { return; }
+    capaEst.clearLayers();
     var limites = [], elegido = null;
-    S.d.ubs.forEach(function (u) {
-      if (u.lat == null || u.lon == null) { return; }
-      limites.push([u.lat, u.lon]);
-      var es = u.id === S.sel;
-      var m = L.circleMarker([u.lat, u.lon], {
-        radius: es ? 10 : 6.5, color: es ? css('--tinta') : '#ffffff', weight: es ? 3 : 1.5,
-        fillColor: colorUbs(u), fillOpacity: visibles[u.id] ? 0.95 : 0.18, opacity: visibles[u.id] ? 1 : 0.3
+    // Primero las UBS, encima CRP y válvulas (son menos y más chicas).
+    ['UBS', 'CRP', 'VAL'].forEach(function (clave) {
+      if (!S.tiposVis[clave]) { return; }
+      var forma = fam(clave).forma;
+      S.items.forEach(function (u) {
+        if (u.g.grupo !== clave || u.lat == null || u.lon == null) { return; }
+        limites.push([u.lat, u.lon]);
+        var es = u.id === S.sel, vis = pasaFiltro(u);
+        var tam = es ? 32 : (clave === 'UBS' ? 22 : 19);
+        var icono = L.divIcon({
+          className: 'mk' + (vis || es ? '' : ' tenue'),
+          html: svgForma(forma, colorDe(u), es ? css('--tinta') : '#ffffff', es ? 2.6 : 1.7, tam),
+          iconSize: [tam, tam], iconAnchor: [tam / 2, tam / 2]
+        });
+        var m = L.marker([u.lat, u.lon], { icon: icono, zIndexOffset: es ? 1000 : (vis ? 0 : -500), keyboard: false });
+        m.bindTooltip('<b>' + esc(u.codigo) + '</b> · ' + (u.estado === 'sin' ? 'sin iniciar' : u.estado === 'concluida' ? 'concluida' : pct(u.avance, 0)),
+                      { direction: 'top', offset: [0, -tam / 2] });
+        m.on('click', function () { elegir(u.id, false); });
+        m.addTo(capaEst);
+        if (es) { elegido = m; }
       });
-      m.bindTooltip('<b>' + esc(u.codigo) + '</b> · ' + (u.estado === 'sin' ? 'sin iniciar' : pct(u.avance)),
-                    { direction: 'top', offset: [0, -6] });
-      m.on('click', function () { elegir(u.id, false); });
-      m.addTo(capaUbs);
-      if (es) { elegido = m; }
     });
-    if (elegido) { elegido.bringToFront(); }
-    if (S.primera && limites.length) {
+    if (!S.mapaAjustado && limites.length && $('mapa').clientWidth > 0) {
       mapa.invalidateSize();
-      mapa.fitBounds(limites, { padding: [28, 28], maxZoom: 17 });
+      mapa.fitBounds(limites, { padding: [40, 40], maxZoom: 17 });
+      S.mapaAjustado = true;
     }
     pintarLeyenda();
   }
 
   function pintarLeyenda() {
-    var items = S.colorPor === 'dias'
-      ? [['--ok', 'Registro hoy o ayer'], ['--curso', 'Hace 2 a 3 días'], ['--alerta', 'Hace 4 días o más'],
-         ['--azul', 'Módulo concluido'], ['--sin', 'Sin registros']]
-      : [['--curso', 'En ejecución'], ['--ok', 'Módulo concluido'], ['--sin', 'Sin iniciar']];
-    $('leyenda').innerHTML = items.map(function (x) {
-      return '<span><i style="background:' + css(x[0]) + '"></i>' + x[1] + '</span>';
-    }).join('');
+    var col = S.colorPor === 'dias'
+      ? [['--ok', 'Registro hoy o ayer'], ['--curso', '2 a 3 días'], ['--alerta', '4 días o más'], ['--azul', 'Concluida'], ['--sin', 'Sin registros']]
+      : [['--curso', 'En ejecución'], ['--ok', 'Concluida'], ['--sin', 'Sin iniciar']];
+    $('leyenda').innerHTML =
+      '<div class="ley-fila">' + FAMILIAS.map(function (f) {
+        return '<span>' + svgForma(f.forma, css('--suave'), 'none', 0, 15) + esc(f.nombre) + '</span>';
+      }).join('') + '</div><div class="ley-fila">' + col.map(function (x) {
+        return '<span><i style="background:' + css(x[0]) + '"></i>' + x[1] + '</span>';
+      }).join('') + '</div>';
   }
 
-  // --------------------------------------------------------------- panel --
+  // ------------------------------------------------------------ PANEL --
   function pintarPanel() {
-    document.querySelectorAll('.pestana').forEach(function (b) {
-      b.setAttribute('aria-selected', String(b.dataset.tab === S.tab));
-    });
-    $('contenido').innerHTML = S.tab === 'resumen' ? htmlResumen() : htmlUbs();
+    if (!S.d) { $('panel').innerHTML = '<p class="vacio">Cargando…</p>'; return; }
+    var u = S.porId[S.sel];
+    $('panel').style.borderTopColor = u ? css(fam(u.g.grupo).franja) : '';
+    $('panel').innerHTML = u ? htmlEstructura(u) : htmlActividad();
   }
 
-  function htmlUbs() {
-    var u = S.porId[S.sel];
-    if (!u) { return '<p class="vacio">Elige una UBS en el mapa o en la lista.</p>'; }
-    var etq = { sin: 'Sin iniciar', curso: 'En ejecución', concluida: 'Concluida' }[u.estado];
-    var meta = [u.sector,
-      u.nRegs ? u.nRegs + (u.nRegs === 1 ? ' registro' : ' registros') + ' · último ' + hace(u.diasSin) : 'sin registros']
-      .map(esc).join(' · ');
-    var h = '<div class="ubs-cab"><div><div class="ubs-cod mono">' + esc(u.codigo) + '</div>' +
-      '<div class="ubs-meta">' + meta + '</div></div><span class="etiqueta ' + u.estado + '">' + etq + '</span></div>';
+  function htmlActividad() {
+    var regs = [];
+    S.grupos.forEach(function (g) { regs = regs.concat(g.registros); });
+    regs.sort(function (a, b) { return cmp(b.fechaReg || b.fecha || '', a.fechaReg || a.fecha || ''); });
+    var h = '<p class="vacio">Toca una casita (UBS), un cuadrado (CRP-7) o un triángulo (válvula) para ver su avance, foto e historial.</p>' +
+      '<h3>Actividad reciente</h3><ul class="actividad">';
+    regs.slice(0, 15).forEach(function (r) {
+      h += '<li><button type="button" class="cod-btn" data-ver="' + esc(r.ubs) + '">' + esc(r.codigo) + '</button>' +
+        '<span>' + (r.orden ? r.orden + '. ' + esc(oracion(r.fase)) : 'Sin fase') + ' · ' + (r.pct == null ? 'sin %' : pct(r.pct, 0)) + '</span>' +
+        '<span class="q">' + fLarga(r.fecha) + '</span></li>';
+    });
+    return h + '</ul>';
+  }
 
-    S.d.especialidades.forEach(function (e) {
+  function htmlEstructura(u) {
+    var g = u.g;
+    var etq = { sin: 'Sin iniciar', curso: 'En ejecución', concluida: 'Concluida' }[u.estado];
+    var meta = [g.corto, u.sector, u.nRegs ? u.nRegs + (u.nRegs === 1 ? ' registro' : ' registros') + ' · último ' + hace(u.diasSin) : 'sin registros'];
+    var h = '<div class="est-cab"><div><div class="est-cod">' + esc(u.codigo) + '</div><div class="est-meta">' + meta.map(esc).join(' · ') +
+      '</div></div><span class="etiqueta ' + u.estado + '">' + etq + '</span></div>';
+    g.especialidades.forEach(function (e) {
       var st = u.esp[e.nombre];
-      var nombresFase = S.d.fases.filter(function (f) { return f.esp === e.nombre; });
-      var segs = '';
+      if (!st) { return; }
+      var fs = g.fases.filter(function (f) { return f.esp === e.nombre; }), segs = '';
       for (var o = 1; o <= st.total; o++) {
-        var f = nombresFase[o - 1];
+        var f = fs[o - 1];
         var cls = o <= st.cerradas ? 'hecha' : (o === st.max && st.frac < 1 ? 'curso' : '');
-        segs += '<span class="' + cls + '"' + (cls === 'curso' ? ' style="--f:' + st.frac + '"' : '') +
-                ' title="' + o + '. ' + esc(oracion(f ? f.nombre : '')) + '"></span>';
+        segs += '<span class="' + cls + '"' + (cls === 'curso' ? ' style="--f:' + st.frac + '"' : '') + ' title="' + o + '. ' + esc(oracion(f ? f.nombre : '')) + '"></span>';
       }
       var pie = !st.max ? 'Todavía sin avance.'
         : st.frac >= 1 ? 'Última cerrada: fase ' + st.max + ', ' + esc(oracion(st.fase)) + '.'
         : 'En curso: fase ' + st.max + ', ' + esc(oracion(st.fase)) + ' (' + pct(st.frac, 0) + ').';
-      h += '<div class="esp"><div class="esp-cab"><b>' + esc(oracion(e.nombre)) + '</b>' +
-           '<span class="num">' + st.cerradas + ' de ' + st.total + ' · ' + pct(st.avance) + '</span></div>' +
-           '<div class="esc" role="img" aria-label="' + st.cerradas + ' de ' + st.total + ' fases cerradas">' + segs + '</div>' +
-           '<div class="esp-pie">' + pie + '</div></div>';
+      h += '<div class="esp"><div class="esp-cab"><b>' + esc(e.nombre ? oracion(e.nombre) : 'Fases') + '</b><span class="num">' +
+        st.cerradas + ' de ' + st.total + ' · ' + pct(st.avance) + '</span></div><div class="esc" role="img" aria-label="' +
+        st.cerradas + ' de ' + st.total + ' fases cerradas">' + segs + '</div><div class="esp-pie">' + pie + '</div></div>';
     });
 
-    var regs = S.regsPorUbs[u.id] || [];
+    var regs = (S.regsPor[u.id] || []).slice().sort(function (a, b) { return cmp(b.fechaReg || b.fecha || '', a.fechaReg || a.fecha || ''); });
     var conFoto = regs.filter(function (r) { return r.foto; });
-    var vista = S.fotoVista && S.regPorId[S.fotoVista] && S.regPorId[S.fotoVista].ubs === u.id ? S.fotoVista
-      : (conFoto.length ? conFoto[0].id : null);
+    var vista = S.fotoVista && S.regPorId[S.fotoVista] && S.regPorId[S.fotoVista].ubs === u.id ? S.fotoVista : (conFoto.length ? conFoto[0].id : null);
     S.fotoVista = vista;
-
-    h += '<h2>Foto de obra</h2><div class="foto">';
+    h += '<h3>Foto de obra</h3><div class="foto">';
     if (vista) {
       var rf = S.regPorId[vista];
-      h += '<img src="' + esc(rf.foto) + '" alt="Foto de obra de ' + esc(u.codigo) + ' del ' + fLarga(rf.fecha) + '" ' +
-           'loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div class=&quot;estado-foto&quot;>La foto no está compartida públicamente en Drive.</div>\'">' +
-           '<div class="foto-pie"><span>' + fLarga(rf.fecha) + ' · ' + (rf.orden ? 'fase ' + rf.orden + ', ' + esc(oracion(rf.fase)) : 'sin fase') + '</span></div>';
-    } else {
-      h += '<div class="estado-foto">Esta UBS todavía no tiene fotos.</div>';
-    }
-    h += '</div>';
-
-    h += '<h2>Historial</h2>';
+      h += '<img src="' + esc(rf.foto) + '" alt="Foto de obra de ' + esc(u.codigo) + ' del ' + fLarga(rf.fecha) + '" loading="lazy" referrerpolicy="no-referrer" ' +
+        'onerror="this.outerHTML=\'<div class=&quot;estado-foto&quot;>La foto no está compartida públicamente en Drive.</div>\'">' +
+        '<div class="foto-pie">' + fLarga(rf.fecha) + ' · ' + (rf.orden ? 'fase ' + rf.orden + ', ' + esc(oracion(rf.fase)) : 'sin fase') + '</div>';
+    } else { h += '<div class="estado-foto">Todavía no tiene fotos.</div>'; }
+    h += '</div><h3>Historial</h3>';
     if (!regs.length) { return h + '<p class="vacio">Todavía no hay registros.</p>'; }
     h += '<ul class="hist">';
     regs.forEach(function (r) {
-      h += '<li class="' + (r.pct >= 1 ? 'term' : '') + '">' +
-        '<div class="h1"><span>' + fLarga(r.fecha) + '</span>' + (r.esp ? '<span>' + esc(oracion(r.esp)) + '</span>' : '') + '</div>' +
+      h += '<li class="' + (r.pct >= 1 ? 'term' : '') + '"><div class="h1">' + fLarga(r.fecha) + (r.esp ? ' · ' + esc(oracion(r.esp)) : '') + '</div>' +
         '<div class="h2">' + (r.orden ? '<span class="num">' + r.orden + '.</span> ' + esc(oracion(r.fase)) : '<i>Sin fase</i>') +
-          ' · <b class="num">' + (r.pct == null ? 'sin %' : pct(r.pct, 0)) + '</b></div>' +
-        (r.foto ? '<div class="h3"><button type="button" class="link" data-foto="' + esc(r.id) + '">' +
-          (r.id === vista ? 'Foto mostrada' : 'Ver foto') + '</button></div>' : '') +
-        '</li>';
+        ' · <b class="num">' + (r.pct == null ? 'sin %' : pct(r.pct, 0)) + '</b></div>' +
+        (r.foto ? '<button type="button" class="link" data-foto="' + esc(r.id) + '">' + (r.id === vista ? 'Foto mostrada' : 'Ver foto') + '</button>' : '') + '</li>';
     });
     return h + '</ul>';
   }
 
-  function htmlResumen() {
-    var d = S.d, h = '';
-    var max = d.ubs.length || 1;
-
-    h += '<h2>Avance por especialidad</h2><div class="barras">';
-    d.especialidades.forEach(function (e) {
-      h += '<div class="barra-fila"><span class="bf-et">' + esc(oracion(e.nombre)) +
-           ' <span style="color:var(--tenue)">· ' + e.total + ' fases · ' + e.iniciadas + ' UBS iniciadas</span></span>' +
-           '<span class="bf-val num">' + pct(e.avance) + '</span>' +
-           '<span class="bf-pista"><i class="c" style="width:' + (e.avance * 100) + '%"></i></span></div>';
-    });
-    h += '</div><p class="nota">Promedio sobre las ' + d.ubs.length + ' UBS, incluidas las que todavía no empiezan.</p>';
-
-    h += '<h2>Escalera del módulo</h2>' +
-         '<div class="leyenda-linea"><span><i style="background:var(--curso-sua);box-shadow:inset 0 0 0 1px var(--curso)"></i>Alcanzaron la fase</span>' +
-         '<span><i style="background:var(--ok)"></i>La cerraron</span></div><div class="barras">';
-    d.escalera.forEach(function (e) {
-      h += '<div class="barra-fila" title="' + e.alcanzaron + ' UBS alcanzaron esta fase, ' + e.cerradas + ' la cerraron">' +
-           '<span class="bf-et"><span class="o num">' + e.orden + '</span>' + esc(oracion(e.nombre)) + '</span>' +
-           '<span class="bf-val num">' + e.alcanzaron + '</span>' +
-           '<span class="bf-pista"><i class="a" style="width:' + (e.alcanzaron / max * 100) + '%"></i>' +
-           '<i class="c" style="width:' + (e.cerradas / max * 100) + '%"></i></span></div>';
-    });
-    h += '</div><p class="nota">Escala completa = ' + d.ubs.length + ' UBS. Una UBS que va en la fase 8 cuenta en las fases 1 a 8.</p>';
-
-    h += '<h2>Por sistema</h2><div class="barras">';
-    d.porSistema.forEach(function (s) {
-      h += '<div class="barra-fila"><span class="bf-et">' + esc(s.sector) +
-           ' <span style="color:var(--tenue)">· ' + s.iniciadas + ' de ' + s.total + ' iniciadas</span></span>' +
-           '<span class="bf-val num">' + pct(s.avance) + '</span>' +
-           '<span class="bf-pista"><i class="c" style="width:' + (s.avance * 100) + '%"></i></span></div>';
-    });
-    h += '</div>';
-
-    var top = 1;
-    d.porDia.forEach(function (x) { if (x.n > top) { top = x.n; } });
-    h += '<h2>Registros de campo por día</h2><div class="dias">';
-    d.porDia.forEach(function (x) {
-      h += '<div class="dia' + (x.dia === d.hoy ? ' hoy' : '') + '" title="' + fLarga(x.dia) + ': ' + x.n + '">' +
-           (x.n ? '<b class="num">' + x.n + '</b>' : '') +
-           '<i class="' + (x.n ? '' : 'cero') + '" style="height:' + (x.n ? Math.max(4, x.n / top * 70) : 1) + 'px"></i></div>';
-    });
-    h += '</div><div class="dias-et">';
-    d.porDia.forEach(function (x, i) {
-      h += '<span>' + (i % 2 === (d.porDia.length - 1) % 2 ? x.dia.slice(8, 10) : '') + '</span>';
-    });
-    h += '</div>';
-
-    h += '<h2>Actividad reciente</h2><ul class="actividad">';
-    d.registros.slice(0, 12).forEach(function (r) {
-      h += '<li><button type="button" class="cod-btn" data-ir="' + esc(r.ubs) + '">' + esc(r.codigo) + '</button>' +
-           '<span>' + (r.orden ? r.orden + '. ' + esc(oracion(r.fase)) : 'Sin fase') + ' · ' + (r.pct == null ? 'sin %' : pct(r.pct, 0)) + '</span>' +
-           '<span class="q">' + fLarga(r.fecha) + '</span></li>';
-    });
-    return h + '</ul>';
-  }
-
-  // ---------------------------------------------------------- interacción --
   function elegir(id, centrar) {
-    S.sel = id;
-    S.fotoVista = null;
-    S.tab = 'ubs';
-    pintarLista();
-    pintarMapa();
-    pintarPanel();
+    S.sel = id; S.fotoVista = null;
     var u = S.porId[id];
+    if (u && !S.tiposVis[u.g.grupo]) { S.tiposVis[u.g.grupo] = true; pintarTiposMapa(); }
+    pintarMapa(); pintarPanel();
     if (centrar && u && u.lat != null) { mapa.setView([u.lat, u.lon], Math.max(mapa.getZoom(), 17)); }
-    var fila = document.querySelector('.fila[data-id="' + CSS.escape(id) + '"]');
-    if (fila) { fila.scrollIntoView({ block: 'nearest' }); }
-    if (window.innerWidth <= 760) { document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    if (window.innerWidth <= 860) { $('panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   }
 
-  $('lista-ubs').addEventListener('click', function (e) {
-    var b = e.target.closest('.fila');
-    if (b) { elegir(b.dataset.id, true); }
-  });
-  $('contenido').addEventListener('click', function (e) {
-    var ir = e.target.closest('[data-ir]');
-    if (ir) { elegir(ir.dataset.ir, true); return; }
-    var fo = e.target.closest('[data-foto]');
-    if (fo) { S.fotoVista = fo.dataset.foto; $('contenido').innerHTML = htmlUbs(); }
-  });
-  document.querySelectorAll('.pestana').forEach(function (b) {
-    b.addEventListener('click', function () { S.tab = b.dataset.tab; if (S.d) { pintarPanel(); } });
-  });
-  $('chips').addEventListener('click', function (e) {
-    var c = e.target.closest('.chip');
-    if (!c) { return; }
-    S.filtro = c.dataset.f;
-    document.querySelectorAll('.chip').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
-    if (S.d) { pintarLista(); pintarMapa(); }
-  });
-  $('buscar').addEventListener('input', function () { S.texto = this.value.trim(); if (S.d) { pintarLista(); pintarMapa(); } });
-  $('sistema').addEventListener('change', function () { S.sistema = this.value; if (S.d) { pintarLista(); pintarMapa(); } });
-  $('orden').addEventListener('change', function () { S.orden = this.value; if (S.d) { pintarLista(); } });
-  document.querySelectorAll('[data-capa]').forEach(function (b) {
-    b.addEventListener('click', function () {
+  // -------------------------------------------------- copiar / Excel --
+  function tsvResumen() {
+    var L = [['Estructura', 'Total', 'Sin iniciar', 'En ejecución', 'Concluidas', 'Avance %', 'Último registro'].join('\t')];
+    filasResumen().forEach(function (f) {
+      if (!f.r) { return; }
+      L.push([f.nombre, f.r.n, f.r.sin, f.r.curso, f.r.conc, Math.round(f.r.avance * 100), f.r.ultima ? fLarga(f.r.ultima) : ''].join('\t'));
+    });
+    return L.join('\n');
+  }
+  function tsvFases(tipo, esp) {
+    var g = grupoTipo(tipo), t = faseTabla(g, esp);
+    var L = [['N°', 'Fase', 'Terminada', 'En proceso', 'Total', 'Faltan'].join('\t')];
+    t.filas.forEach(function (f) { L.push([f.orden, oracion(f.nombre), f.term, f.proc, f.total, t.n - f.total].join('\t')); });
+    L.push(['', 'Sin iniciar', '', '', t.sinIniciar, ''].join('\t'));
+    return L.join('\n');
+  }
+  function filasExcel(gs, esp) {
+    var L = [['Tipo', 'Código', 'Sistema', 'Especialidad', 'N° fase actual', 'Fase actual', '% de la fase', 'Fases cerradas',
+              'Total de fases', 'Avance %', 'Último registro', 'Días sin registro']];
+    filasDetalleDe(gs, esp).forEach(function (x) {
+      L.push([x.u.g.corto, x.u.codigo, x.u.sector, x.esp ? oracion(x.esp) : '', x.st.max || '', x.st.max ? oracion(x.st.fase) : 'Sin iniciar',
+              x.st.max ? Math.round(x.st.frac * 100) : '', x.st.cerradas, x.st.total, Math.round(x.st.avance * 100),
+              x.u.ultima ? fLarga(x.u.ultima) : '', x.u.diasSin == null ? '' : x.u.diasSin]);
+    });
+    return L;
+  }
+  function textoWhatsApp() {
+    var u = ultimoCampo();
+    var L = ['*Avance de obra · Nuevo San Juan Alto*', (S.sis || 'Ambos sistemas'),
+             'Último registro de campo: ' + (u ? fLarga(u.fecha) + ' (' + hace(u.dias) + ')' : 'ninguno'), ''];
+    filasResumen().forEach(function (f) {
+      if (!f.r) { return; }
+      L.push('*' + f.nombre + '*: ' + f.r.n + ' · ' + f.r.conc + ' concluidas · ' + f.r.curso + ' en ejecución · ' + f.r.sin + ' sin iniciar · avance ' + pct(f.r.avance, 0));
+    });
+    var gU = S.grupos[0], t = faseTabla(gU, gU.principal);
+    L.push('', '*UBS · ' + oracion(gU.principal) + '*');
+    t.filas.forEach(function (f) { if (f.total) { L.push(f.orden + '. ' + oracion(f.nombre) + ': *' + f.total + '* (' + f.term + ' term., ' + f.proc + ' en proceso)'); } });
+    var gC = grupoTipo('CAMARA ROMPE PRESION T7');
+    if (gC) {
+      var tc = faseTabla(gC, gC.principal), conAv = tc.filas.filter(function (f) { return f.total; });
+      if (conAv.length) {
+        L.push('', '*CRP-7*');
+        conAv.forEach(function (f) { L.push(f.orden + '. ' + oracion(f.nombre) + ': *' + f.total + '*'); });
+      }
+    }
+    L.push('', 'Detalle: ' + location.href.split('#')[0]);
+    return L.join('\n');
+  }
+  function copiar(texto, boton) {
+    function listo() {
+      var antes = boton.innerHTML;
+      boton.classList.add('hecho'); boton.lastChild.textContent = 'Copiado';
+      setTimeout(function () { boton.innerHTML = antes; boton.classList.remove('hecho'); }, 1600);
+    }
+    function aMano() {
+      var a = document.createElement('textarea');
+      a.value = texto; a.style.position = 'fixed'; a.style.opacity = '0';
+      document.body.appendChild(a); a.select();
+      try { document.execCommand('copy'); listo(); } catch (e) { boton.lastChild.textContent = 'No se pudo copiar'; }
+      document.body.removeChild(a);
+    }
+    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(texto).then(listo, aMano); } else { aMano(); }
+  }
+  // El Excel en Perú separa columnas con punto y coma; el BOM hace que lea bien las tildes.
+  function descargarCsv(filas, nombre) {
+    var q = function (v) { v = v == null ? '' : String(v); return /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    var csv = '﻿' + filas.map(function (f) { return f.map(q).join(';'); }).join('\r\n');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = nombre;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  function accion(b) {
+    if (!S.d) { return; }
+    var a = b.dataset.accion;
+    if (a === 'whatsapp') { copiar(textoWhatsApp(), b); }
+    else if (a === 'copiar-resumen') { copiar(tsvResumen(), b); }
+    else if (a === 'copiar-fases') { copiar(tsvFases(b.dataset.tipo, b.dataset.esp), b); }
+    else if (a === 'copiar-detalle' || a === 'excel') {
+      var desdeDetalle = S.vista === 'detalle' && b.classList.contains('mini-boton');
+      var gs = desdeDetalle ? S.grupos.filter(function (g) { return g.grupo === S.detGrupo; }) : S.grupos;
+      var esp = desdeDetalle && S.detGrupo === 'UBS' ? (S.detEsp || S.grupos[0].principal) : null;
+      var filas = filasExcel(gs, esp);
+      if (a === 'excel') { descargarCsv(filas, 'avance-' + (desdeDetalle ? S.detGrupo.toLowerCase() : 'obra') + '-' + S.d.hoy + '.csv'); }
+      else { copiar(filas.map(function (f) { return f.join('\t'); }).join('\n'), b); }
+    }
+  }
+
+  // ------------------------------------------------------------ vistas --
+  function vistaDeHash() {
+    var h = location.hash.replace('#', '');
+    return h === 'mapa' || h === 'detalle' ? h : 'inicio';
+  }
+  function ponerVista(v) {
+    S.vista = v;
+    $('v-inicio').hidden = v !== 'inicio';
+    $('v-mapa').hidden = v !== 'mapa';
+    $('v-detalle').hidden = v !== 'detalle';
+    document.querySelectorAll('[data-ir-vista]').forEach(function (a) {
+      if (a.dataset.irVista === v) { a.setAttribute('aria-current', 'page'); } else { a.removeAttribute('aria-current'); }
+    });
+    if (!S.d) { return; }
+    if (v === 'inicio') { pintarInicio(); }
+    if (v === 'detalle') { pintarDetalle(); }
+    if (v === 'mapa') { setTimeout(function () { mapa.invalidateSize(); pintarMapa(); }, 0); }
+  }
+
+  // ------------------------------------------------------- interacción --
+  document.addEventListener('click', function (e) {
+    var b;
+    if ((b = e.target.closest('[data-accion]'))) { accion(b); return; }
+    if ((b = e.target.closest('[data-sis]'))) {
+      S.sis = b.dataset.sis; pintarSegSis();
+      if (S.vista === 'inicio') { pintarInicio(); } else if (S.vista === 'detalle') { pintarDetalle(); }
+      pintarMapa(); return;
+    }
+    if ((b = e.target.closest('[data-solo]'))) {
+      FAMILIAS.forEach(function (f) { S.tiposVis[f.clave] = f.clave === b.dataset.solo; });
+      pintarTiposMapa(); return;   // el enlace cambia el hash y abre el mapa
+    }
+    if ((b = e.target.closest('[data-ver]'))) {
+      var id = b.dataset.ver;
+      if (S.vista !== 'mapa') { location.hash = 'mapa'; }
+      setTimeout(function () { mapa.invalidateSize(); elegir(id, true); }, 30);
+      return;
+    }
+    if ((b = e.target.closest('[data-foto]'))) { S.fotoVista = b.dataset.foto; pintarPanel(); return; }
+    if ((b = e.target.closest('[data-det]'))) { S.detGrupo = b.dataset.det; pintarDetalle(); return; }
+    if ((b = e.target.closest('[data-tipo]'))) {
+      S.tiposVis[b.dataset.tipo] = !S.tiposVis[b.dataset.tipo];
+      pintarTiposMapa(); pintarMapa(); return;
+    }
+    if ((b = e.target.closest('[data-estado]'))) {
+      S.filtro = b.dataset.estado;
+      document.querySelectorAll('[data-estado]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      pintarMapa(); return;
+    }
+    if ((b = e.target.closest('[data-color]'))) {
+      S.colorPor = b.dataset.color;
+      document.querySelectorAll('[data-color]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      pintarMapa(); return;
+    }
+    if ((b = e.target.closest('[data-capa]'))) {
       Object.keys(capas).forEach(function (k) { if (mapa.hasLayer(capas[k])) { mapa.removeLayer(capas[k]); } });
       capas[b.dataset.capa].addTo(mapa);
       document.querySelectorAll('[data-capa]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
-    });
+    }
   });
-  document.querySelectorAll('[data-color]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      S.colorPor = b.dataset.color;
-      document.querySelectorAll('[data-color]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
-      if (S.d) { pintarLista(); pintarMapa(); }
-    });
+  document.addEventListener('change', function (e) {
+    var s = e.target.closest('[data-sel]');
+    if (!s) { return; }
+    S[s.dataset.sel] = s.value;
+    if (S.vista === 'inicio') { pintarInicio(); } else { pintarDetalle(); }
+  });
+  $('buscar').addEventListener('input', function () {
+    S.texto = this.value.trim();
+    if (!S.d) { return; }
+    var exacto = S.items.filter(function (u) { return u.codigo.toLowerCase() === S.texto.toLowerCase(); })[0];
+    if (exacto) { elegir(exacto.id, true); } else { pintarMapa(); }
   });
   $('btn-actualizar').addEventListener('click', cargar);
-
+  window.addEventListener('hashchange', function () { ponerVista(vistaDeHash()); });
   setInterval(function () { if (!document.hidden) { cargar(); } }, REFRESCO_MS);
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden && Date.now() - S.ultimo > REFRESCO_MS) { cargar(); }
   });
   window.addEventListener('resize', function () { mapa.invalidateSize(); });
-  setTimeout(function () { mapa.invalidateSize(); }, 300);
 
+  pintarPanel();
+  ponerVista(vistaDeHash());
   cargar();
 })();
 </script>
