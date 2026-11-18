@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <title>Avance de obra · Nuevo San Juan Alto</title>
 <meta name="description" content="Avance físico de las UBS, cámaras rompe presión tipo 7 y válvulas de Nuevo San Juan Alto, Hualgayoc, actualizado desde los registros diarios de campo.">
 <meta property="og:title" content="Avance de obra · Nuevo San Juan Alto">
@@ -24,26 +25,8 @@
     --radio:12px;
     --display:"Oswald", "Arial Narrow", sans-serif;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --contenido:#171515; --lateral:#141c28; --activo:#3d7fe6; --sup:#211f1f; --sup2:#2a2727;
-      --tinta:#ece9e6; --suave:#aba7a3; --tenue:#77736f; --linea:#353130; --linea2:#2c2928;
-      --rojo:#ff5a6e; --rojo-sua:#3a1a1e;
-      --f-amarillo:#e2b600; --f-verde:#2fb276; --f-azul:#6aa2f5; --f-rojo:#ff5a6e;
-      --ok:#55c283; --ok-sua:#16291e; --curso:#eda53a; --curso-sua:#33280f; --sin:#6d6f73;
-      --alerta:#ef8572; --alerta-sua:#371a14; --azul:#7ea8e8;
-      --sombra:0 2px 10px rgba(0,0,0,.35);
-    }
-  }
-  :root[data-theme="dark"] {
-    --contenido:#171515; --lateral:#141c28; --activo:#3d7fe6; --sup:#211f1f; --sup2:#2a2727;
-    --tinta:#ece9e6; --suave:#aba7a3; --tenue:#77736f; --linea:#353130; --linea2:#2c2928;
-    --rojo:#ff5a6e; --rojo-sua:#3a1a1e;
-    --f-amarillo:#e2b600; --f-verde:#2fb276; --f-azul:#6aa2f5; --f-rojo:#ff5a6e;
-    --ok:#55c283; --ok-sua:#16291e; --curso:#eda53a; --curso-sua:#33280f; --sin:#6d6f73;
-    --alerta:#ef8572; --alerta-sua:#371a14; --azul:#7ea8e8;
-    --sombra:0 2px 10px rgba(0,0,0,.35);
-  }
+  /* Siempre claro, como el portal de referencia: el modo oscuro del celular no lo cambia. */
+  :root { color-scheme:light; }
 
   * { box-sizing:border-box; }
   html { -webkit-text-size-adjust:100%; }
